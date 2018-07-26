@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<!-- 上述3个meta标签*必须*放在最前面，任何其他内容都*必须*跟随其后！ -->
+<meta name="description" content="">
+<meta name="author" content="">
+<link rel="icon" href="/img/favicon.ico">
+<title>定制爬虫</title>
+<script src="/js/jquery.min.js"></script>
+<script src="/js/bootstrap.min.js"></script>
+<link rel="stylesheet" href="/css/bootstrap.min.css">
+<link rel="stylesheet" href="/css/bootstrap-theme.min.css">
+</head>
+<style type="text/css">
+	.container h1 {
+		color: #91c7ff;
+		background-image: -webkit-gradient(linear, 0 0, 0 bottom, from(#c6deff), to(#4697ff));
+		-webkit-background-clip: text;
+		-webkit-text-fill-color: transparent;
+		-webkit-box-reflect: below -50px -webkit-gradient(linear, center top, center bottom, from(transparent),color-stop(0.2, transparent), to(rgba(255, 255, 255, 0.2)));
+	}
+</style>
+<body style="background: rgb(6, 34, 84);">
+	<nav class="navbar navbar-inverse navbar-fixed-top" style="background: rgb(8, 8, 8);">
+		<div class="container">
+			<div class="navbar-header">
+				<button type="button" class="navbar-toggle collapsed"
+					data-toggle="collapse" data-target="#navbar" aria-expanded="false"
+					aria-controls="navbar">
+					<span class="sr-only">Toggle navigation</span> <span
+						class="icon-bar"></span> <span class="icon-bar"></span> <span
+						class="icon-bar"></span>
+				</button>
+				<a class="navbar-brand" style="color: rgb(255, 255, 255);" href="#">定制爬虫</a>
+			</div>
+			<div id="navbar" class="navbar-collapse collapse">
+				<form class="navbar-form navbar-right">
+					<div class="form-group">
+						<input type="text" placeholder="User name" class="form-control">
+					</div>
+					<div class="form-group">
+						<input type="password" placeholder="Password" class="form-control">
+					</div>
+					<button type="submit" class="btn btn-success" style="background: #578EBE;border-color:#578EBE">登录</button>
+				</form>
+			</div>
+		</div>
+	</nav>
+
+	<!-- Main jumbotron for a primary marketing message or call to action -->
+	<div class="jumbotron" style="background: rgb(6, 34, 84);">
+		<div class="container">
+			<h1>爬虫管理</h1>
+			<p style="color: #fff">此界面为航天科工成都数据研究院内部使用的定制化爬虫的前端设置页面，通过原理简介与使用引导，辅助使用者根据需求进行爬虫参数的设置，从而进行简易地网页内容爬取。后台程序语言为Java。</p>
+			<p>
+				<a class="btn btn-primary btn-lg" href="http://www.htdata.com/"
+					role="button" target="_blank">公司简介 &raquo;</a>
+			</p>
+		</div>
+	</div>
+	<div class="container" style="background: rgb(6, 34, 84);">
+		<!-- Example row of columns -->
+		<div class="row">
+			<div class="col-md-4">
+				<h2 style="color: #fff">爬虫原理</h2>
+				<p style="color: #fff;text-indent: 2em; height: 100px">简单为大家展示一个动画和流程图，让大家对爬虫的基本原理有一个基本的了解，而后再根据使用说明进行后续工作。</p>
+				<p>
+					<a style="color:#fff;background: #578EBE;border-color: #578EBE;" class="btn " href="/pages/principle.html"
+						role="button">View details &raquo;</a>
+				</p>
+			</div>
+			<div class="col-md-4">
+				<h2 style="color: #fff">标签测试</h2>
+				<p style="color: #fff;text-indent: 2em; height: 100px">为方便对网页内容以及JSOUP提取的内容进行实时测试，可以在该页面中输入页面地址，再按照JSOUP规则输入对应的标签，测试是否能够获取到对应标签中的内容，以及获取内容的效果。</p>
+				<p>
+					<a style="color:#fff;background: #578EBE;border-color: #578EBE;" class="btn" href="/pages/test.html" role="button">View details
+						&raquo;</a>
+				</p>
+			</div>
+			<div class="col-md-4">
+				<h2 style="color: #fff">参数配置</h2>
+				<p style="color: #fff;text-indent: 2em; height: 100px">简单地了解爬虫流程之后，就可以根据网站的前端页面源码进行程序参数的设置，爬取需要的内容。目前只支持消息的标题，消息发布的时间以及消息的正文内容爬取，更多内容请等待后台服务升级之后的版本更新。</p>
+				<p>
+					<a style="color:#fff;background: #578EBE;border-color: #578EBE;" class="btn" href="/pages/seed.html"
+						role="button">View details &raquo;</a>
+				</p>
+			</div>
+		</div>
+<!-- 		<div class="row">
+			<div class="col-md-4">
+				<h2>Heading</h2>
+				<p style="text-indent: 2em; height: 100px">Donec sed odio dui.
+					Cras justo odio, dapibus ac facilisis in, egestas eget quam.
+					Vestibulum id ligula porta felis euismod semper. Fusce dapibus,
+					tellus ac cursus commodo, tortor mauris condimentum nibh, ut
+					fermentum massa justo sit amet risus.</p>
+				<p>
+					<a class="btn btn-default" href="#" role="button">View details
+						&raquo;</a>
+				</p>
+			</div>
+			<div class="col-md-4">
+				<h2>Heading</h2>
+				<p style="text-indent: 2em; height: 100px">Donec sed odio dui.
+					Cras justo odio, dapibus ac facilisis in, egestas eget quam.
+					Vestibulum id ligula porta felis euismod semper. Fusce dapibus,
+					tellus ac cursus commodo, tortor mauris condimentum nibh, ut
+					fermentum massa justo sit amet risus.</p>
+				<p>
+					<a class="btn btn-default" href="#" role="button">View details
+						&raquo;</a>
+				</p>
+			</div>
+			<div class="col-md-4">
+				<h2>Heading</h2>
+				<p style="text-indent: 2em; height: 100px">Donec sed odio dui.
+					Cras justo odio, dapibus ac facilisis in, egestas eget quam.
+					Vestibulum id ligula porta felis euismod semper. Fusce dapibus,
+					tellus ac cursus commodo, tortor mauris condimentum nibh, ut
+					fermentum massa justo sit amet risus.</p>
+				<p>
+					<a class="btn btn-default" href="#" role="button">View details
+						&raquo;</a>
+				</p>
+			</div>
+		</div> -->
+		<hr>
+		<footer>
+			<script type="text/javascript" src="/js/footer.js"></script>
+		</footer>
+	</div>
+	<!-- /container -->
+</body>
+</html>

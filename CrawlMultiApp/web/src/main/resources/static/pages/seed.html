@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<!-- 上述3个meta标签*必须*放在最前面，任何其他内容都*必须*跟随其后！ -->
+<meta name="description" content="">
+<meta name="author" content="">
+<link rel="icon" href="../img/favicon.ico">
+<title>参数配置</title>
+<script src="../js/jquery.min.js"></script>
+<script src="../js/bootstrap.min.js"></script>
+<link rel="stylesheet" href="../css/bootstrap.min.css">
+<link rel="stylesheet" href="../css/bootstrap-theme.min.css">
+</head>
+<body>
+	<!-- Fixed navbar -->
+	<nav class="navbar navbar-inverse navbar-fixed-top" style="background: rgb(8, 8, 8);">
+		<div class="container">
+			<div class="navbar-header">
+				<button type="button" class="navbar-toggle collapsed"
+					data-toggle="collapse" data-target="#navbar" aria-expanded="false"
+					aria-controls="navbar">
+					<span class="sr-only">Toggle navigation</span> <span
+						class="icon-bar"></span> <span class="icon-bar"></span> <span
+						class="icon-bar"></span>
+				</button>
+				<a class="navbar-brand" href="../../index.html" style="color: rgb(255, 255, 255);">定制爬虫</a>
+			</div>
+		</div>
+	</nav>
+	<div class="container theme-showcase" role="main">
+		<!-- Main jumbotron for a primary marketing message or call to action -->
+		<div class="jumbotron">
+			<h1>爬虫参数配置</h1>
+			<p>请参考教程说明，对下表单进行填写，设置爬虫的具体参数后点击开始爬虫。</p>
+		</div>
+		<div class="page-header">
+			<h2>关键参数配置</h2>
+		</div>
+		<div class="row">
+			<div class="col-md-12">
+				<form class="form-horizontal" role="form" id="formStartJobInfo">
+					<div class="form-group">
+						<label for="inputForWeburl" class="col-sm-1 control-label">网站地址</label>
+						<div class="col-sm-10">
+							<input formenctype="application/x-www-form-urlencoded"
+								type="text" class="form-control"
+								placeholder="请输入网站的首页地址，例：http://www.baidu.com" name="weburl"
+								id="inputForWeburl">
+						</div>
+					</div>
+					<div class="form-group">
+						<label for="inputForSeedurl" class="col-sm-1 control-label">种子网址</label>
+						<div class="col-sm-10">
+							<input formenctype="application/x-www-form-urlencoded"
+								type="text" class="form-control"
+								placeholder="请输入需爬的种子网站地址（多个用英文空格分开），例：http://www.baidu.com http://www.google.com"
+								name="seedurl" id="inputForSeedurl">
+						</div>
+					</div>
+					<div class="form-group">
+						<label for="inputForTitle" class="col-sm-1 control-label">标题标签</label>
+						<div class="col-sm-10">
+							<input formenctype="application/x-www-form-urlencoded"
+								type="text" class="form-control"
+								placeholder="请输入需爬的标题的关键标签（查看页面源码后进行编写），如：div#part07 h1"
+								name="titleKeywords" id="inputForTitle">
+						</div>
+					</div>
+					<div class="form-group">
+						<label for="inputForTime" class="col-sm-1 control-label">时间标签</label>
+						<div class="col-sm-10">
+							<input formenctype="application/x-www-form-urlencoded"
+								type="text" class="form-control"
+								placeholder="请输入需爬的标题的关键标签（查看页面源码后进行编写），如：div#part07 h3"
+								name="timeKeywords" id="inputForTime">
+						</div>
+					</div>
+					<div class="form-group">
+						<label for="inputForContent" class="col-sm-1 control-label">内容标签</label>
+						<div class="col-sm-10">
+							<input formenctype="application/x-www-form-urlencoded"
+								type="text" class="form-control"
+								placeholder="请输入需爬的内容的关键标签（查看页面源码后进行编写），如：td#myFont p"
+								name="contentKeywords" id="inputForContent">
+						</div>
+					</div>
+					<div class="form-group">
+						<label for="inputForWebsiteInfo" class="col-sm-1 control-label">来源概述</label>
+						<div class="col-sm-10">
+							<input formenctype="application/x-www-form-urlencoded"
+								type="text" class="form-control"
+								placeholder="请输入网站的简称，概述该系列数据的网站来源，如：航天科工官方网站"
+								name="websiteInfo" id="inputForWebsiteInfo">
+						</div>
+					</div>
+					<div class="form-group">
+						<label for="inputForCategory" class="col-sm-1 control-label">网站类型</label>
+						<div class="col-sm-2">
+							<select formenctype="application/x-www-form-urlencoded"
+								class="form-control" name="categoryId" id="inputForCategory">
+							</select>
+						</div>
+						<div class="col-sm-1"></div>
+						<label for="inputForTimeFormat" class="col-sm-1 control-label">时间格式</label>
+						<div class="col-sm-4">
+							<select formenctype="application/x-www-form-urlencoded"
+								class="form-control" name=timeId id="inputForTimeFormat">
+							</select>
+						</div>
+					</div>
+				</form>
+			</div>
+		</div>
+		<hr>
+		<div class="page-header">
+			<h2>执行命令</h2>
+		</div>
+		<div>
+			<input type="button" value="开始爬虫" class="btn btn-default"
+				style="margin-bottom: 20px" onclick="excuteShell();" />
+			<div class="panel panel-default">
+				<div class="panel-heading">
+					<p id="panelHead"></p>
+				</div>
+				<div class="panel-body">
+					<p id="panelBody"></p>
+				</div>
+			</div>
+		</div>
+		<hr>
+		<footer>
+			<script type="text/javascript" src="../js/footer.js"></script>
+		</footer>
+	</div>
+	<!-- /container -->
+</body>
+<script type="text/javascript">
+	var baseUrl = "http://182.150.37.78:9080/crawl";
+	/* var baseUrl = "http://localhost:8080/crawl"; */
+	$(function() {
+		// 加载下拉菜单
+		$.ajax({
+			url : baseUrl + "/startJob/category",
+			type : 'GET',
+			dataType : "json",
+			success : function(data) {
+				var sel = '<option value="0">--请选择网站类型--</option>';
+				var res = sel;
+				for ( var o in data) {
+					sel = '<option value="' + o+ '">' + data[o] + '</option>';
+					res = res + sel;
+				}
+				$("#inputForCategory").html(res);
+			}
+		});
+	});
+	$(function() {
+		// 加载下拉菜单
+		$.ajax({
+			url : baseUrl + "/startJob/time",
+			type : 'GET',
+			dataType : "json",
+			success : function(data) {
+				var sel = '<option value="0">--请选择时间格式类型--</option>';
+				for ( var i in data) {
+					console.log(i)
+					sel += '<option value="'+i+'">' + data[i].time_format
+							+ "（如：" + data[i].time_example + '）</option>';
+				}
+				$("#inputForTimeFormat").html(sel);
+			}
+		});
+	});
+	function excuteShell() {
+		var AjaxURL = baseUrl + "/startJob/info";
+		$.ajax({
+			type : "POST",
+			dataType : "json",
+			url : AjaxURL,
+			data : $('#formStartJobInfo').serialize(),
+			success : function(data) {
+				var panelBody = document.getElementById("panelBody");
+				panelHead.innerHTML = "后台执行结果";
+				panelBody.innerHTML = JSON.stringify(data);
+			},
+			error : function(msg) {
+				var panelBody = document.getElementById("panelBody");
+				panelHead.innerHTML = "ERROR";
+				panelBody.innerHTML = JSON.stringify(msg);
+			}
+		});
+	}
+</script>
+</html>

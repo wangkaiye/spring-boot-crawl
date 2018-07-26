@@ -1,0 +1,16 @@
+##thymeleaf页面模板配置
+spring:
+ mvc:
+  view:
+   prefix: /
+   suffix: .html
+
+server:
+  port: 8080
+
+spring:
+  profiles:
+    active: dev
+
+logging:
+  path: /logs

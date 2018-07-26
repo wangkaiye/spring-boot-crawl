@@ -2,22 +2,26 @@ package com.htdata.crawl.web.controller;
 
 import com.alibaba.fastjson.JSONObject;
 
+import com.htdata.crawl.core.component.FixedInfoServiceImpl;
 import com.htdata.crawl.core.constant.CommonConfig;
 import com.htdata.crawl.core.constant.ResponseInfo;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.io.IOException;
-
+@Slf4j
 @RestController
 @RequestMapping("/startJob")
 public class CrawlJobController {
-	private static Logger logger = LoggerFactory.getLogger(CrawlJobController.class);
+	@Autowired
+	private FixedInfoServiceImpl fixedInfoService;
 
 	@RequestMapping(value = "/info", method = RequestMethod.POST)
 	public Object getCrawlInfo(@RequestParam(value = CommonConfig.WEB_URL, required = true) String weburl,
@@ -80,7 +84,7 @@ public class CrawlJobController {
 		if (StringUtils.isEmpty(timeId.trim())) {
 			return getFailedJson();
 		} else {
-			JSONObject timeJson = TimeFormatDaoImpl.getAllTimeRealtedInfo();
+			JSONObject timeJson = fixedInfoService.getAllTimeRealtedInfo();
 			String timeFormatInJson = timeJson.getJSONObject(timeId).getString("time_format");
 			String timeRegixInJson = timeJson.getJSONObject(timeId).getString("time_regix");
 			timeRegix = CommonConfig.TIME_REGIX + CommonConfig.SPLIT_CHAR
@@ -92,7 +96,7 @@ public class CrawlJobController {
 			return json;
 		} else {
 			category = CommonConfig.CATEGORY_KEY_WORDS + CommonConfig.SPLIT_CHAR
-					+ CategoryDaoImpl.getCategoryInfo().getString(categoryId);
+					+ fixedInfoService.getCategoryInfo().getString(categoryId);
 			categoryId = CommonConfig.CATEGORY_ID_KEY_WORDS + CommonConfig.SPLIT_CHAR
 					+ categoryId.replace(" ", CommonConfig.SPACE_CHAR_REPLACE);
 		}
@@ -124,12 +128,12 @@ public class CrawlJobController {
 
 	@RequestMapping(value = "/category", method = RequestMethod.GET)
 	public Object getCategoryInfo() {
-		return CategoryDaoImpl.getCategoryInfo();
+		return fixedInfoService.getCategoryInfo();
 	}
 
 	@RequestMapping(value = "/time", method = RequestMethod.GET)
 	public Object getTimeRelatedInfo() {
-		return TimeFormatDaoImpl.getAllTimeRealtedInfo();
+		return fixedInfoService.getAllTimeRealtedInfo();
 	}
 
 	private JSONObject getFailedJson() {

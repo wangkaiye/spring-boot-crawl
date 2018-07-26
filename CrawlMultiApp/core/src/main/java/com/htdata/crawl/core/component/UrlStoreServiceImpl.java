@@ -1,12 +1,15 @@
-package com.htdata.crawl.core.service;
+package com.htdata.crawl.core.component;
 
 import org.springframework.stereotype.Service;
 
 import java.security.MessageDigest;
 import java.util.HashSet;
 
+/**
+ * 去重
+ */
 @Service
-public class UrlDuplicateRemovalServiceImpl {
+public class UrlStoreServiceImpl {
 
     private static HashSet<String> hashSet = new HashSet<>();
 

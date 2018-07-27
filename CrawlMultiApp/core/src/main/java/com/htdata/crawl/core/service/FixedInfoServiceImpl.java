@@ -1,4 +1,4 @@
-package com.htdata.crawl.core.component;
+package com.htdata.crawl.core.service;
 
 import com.alibaba.fastjson.JSONObject;
 import com.htdata.crawl.core.dao.CategoryInfoDao;

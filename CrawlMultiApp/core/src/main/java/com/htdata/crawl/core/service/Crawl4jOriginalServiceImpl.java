@@ -1,14 +1,10 @@
 package com.htdata.crawl.core.service;
 
-import com.htdata.crawl.core.component.UrlStoreServiceImpl;
-import com.htdata.crawl.core.entity.TestContentEntity;
 import edu.uci.ics.crawler4j.crawler.Page;
 import edu.uci.ics.crawler4j.crawler.WebCrawler;
 import edu.uci.ics.crawler4j.parser.HtmlParseData;
 import edu.uci.ics.crawler4j.url.WebURL;
 import lombok.extern.slf4j.Slf4j;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

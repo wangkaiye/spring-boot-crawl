@@ -1,4 +1,4 @@
-package com.htdata.crawl.core.component;
+package com.htdata.crawl.core.service;
 
 import com.htdata.crawl.core.CoreApplication;
 import com.htdata.crawl.core.constant.CommonConfig;
@@ -18,7 +18,7 @@ import java.util.regex.Pattern;
 public class JsoupParseServiceImpl {
     private static SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
 
-    private static SimpleDateFormat needProcessDateFormat = new SimpleDateFormat(CoreApplication.config.get(CommonConfig.TIME_REGIX));
+    private static SimpleDateFormat needProcessDateFormat = null;
     /**
      *
      * @param html
@@ -252,8 +252,13 @@ public class JsoupParseServiceImpl {
                 equals("yyyy-MM-dd")) {
             return dateStr;
         }
-        Date date = needProcessDateFormat.parse(dateStr);
-        return simpleDateFormat.format(date);
+        if(CoreApplication.config.containsKey(CommonConfig.TIME_REGIX)){
+            needProcessDateFormat = new SimpleDateFormat(CoreApplication.config.get(CommonConfig.TIME_REGIX));
+            Date date = needProcessDateFormat.parse(dateStr);
+            return simpleDateFormat.format(date);
+        }else{
+            return null;
+        }
     }
 
     public static String getTextNewsInfo(String html, String flag) {

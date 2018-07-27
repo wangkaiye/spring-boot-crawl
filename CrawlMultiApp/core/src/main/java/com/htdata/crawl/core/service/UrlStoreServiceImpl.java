@@ -1,4 +1,4 @@
-package com.htdata.crawl.core.component;
+package com.htdata.crawl.core.service;
 
 import org.springframework.stereotype.Service;
 

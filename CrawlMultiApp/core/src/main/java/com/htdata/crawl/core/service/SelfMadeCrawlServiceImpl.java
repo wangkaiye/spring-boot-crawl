@@ -2,8 +2,6 @@ package com.htdata.crawl.core.service;
 
 import com.htdata.crawl.core.CoreApplication;
 import com.htdata.crawl.core.component.HttpUtil;
-import com.htdata.crawl.core.component.JsoupParseServiceImpl;
-import com.htdata.crawl.core.component.UrlStoreServiceImpl;
 import com.htdata.crawl.core.constant.CommonConfig;
 import com.htdata.crawl.core.dao.CrawlContentInfoDao;
 import com.htdata.crawl.core.entity.CrawlContentEntity;

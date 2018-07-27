@@ -4,13 +4,9 @@ spring:
   view:
    prefix: /
    suffix: .html
-
+ profiles:
+   active: dev
 server:
   port: 8080
-
-spring:
-  profiles:
-    active: dev
-
 logging:
   path: /logs

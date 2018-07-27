@@ -1,6 +1,6 @@
-spring:
-  profiles:
-    active: dev
-
-logging:
-  path: /logs
+#spring:
+#  profiles:
+#    active: dev
+#
+#logging:
+#  path: /logs

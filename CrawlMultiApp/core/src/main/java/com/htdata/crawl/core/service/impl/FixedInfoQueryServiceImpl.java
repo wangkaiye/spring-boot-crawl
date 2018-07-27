@@ -1,4 +1,4 @@
-package com.htdata.crawl.core.service;
+package com.htdata.crawl.core.service.impl;
 
 import com.alibaba.fastjson.JSONObject;
 import com.htdata.crawl.core.dao.CategoryInfoDao;
@@ -13,7 +13,7 @@ import java.util.Map;
  * 获取长时间不会更改的数据库信息存放在内存中,在固定时间之后，如果有新的请求就再去数据库请求一次数据
  */
 @Service
-public class FixedInfoServiceImpl {
+public class FixedInfoQueryServiceImpl {
     private static JSONObject timeFormatResult = new JSONObject();
     private static JSONObject categoryInfoResult = new JSONObject();
     private static long queryMiliTime = System.currentTimeMillis();

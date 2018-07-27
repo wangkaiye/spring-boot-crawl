@@ -2,9 +2,8 @@ package com.htdata.crawl.web.controller;
 
 import com.alibaba.fastjson.JSONObject;
 
-import com.htdata.crawl.core.component.HttpUtil;
+import com.htdata.crawl.core.manager.HttpUtil;
 import com.htdata.crawl.core.constant.CommonConfig;
-import com.htdata.crawl.core.service.CommandServiceImpl;
 import com.htdata.crawl.core.service.JsoupParseServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;

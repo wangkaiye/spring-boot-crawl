@@ -1,10 +1,10 @@
 package com.htdata.crawl.core.service;
 
 import com.htdata.crawl.core.CoreApplication;
-import com.htdata.crawl.core.component.HttpUtil;
 import com.htdata.crawl.core.constant.CommonConfig;
 import com.htdata.crawl.core.dao.CrawlContentInfoDao;
 import com.htdata.crawl.core.entity.CrawlContentEntity;
+import com.htdata.crawl.core.manager.HttpUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;

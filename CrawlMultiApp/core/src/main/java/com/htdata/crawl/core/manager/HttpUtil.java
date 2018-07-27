@@ -1,4 +1,4 @@
-package com.htdata.crawl.core.component;
+package com.htdata.crawl.core.manager;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;

@@ -3,6 +3,7 @@ package com.htdata.crawl.core.service.impl;
 import com.alibaba.fastjson.JSONObject;
 import com.htdata.crawl.core.dao.CategoryInfoDao;
 import com.htdata.crawl.core.dao.TimeFormatDao;
+import com.htdata.crawl.core.service.FixedInfoQueryService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -13,7 +14,7 @@ import java.util.Map;
  * 获取长时间不会更改的数据库信息存放在内存中,在固定时间之后，如果有新的请求就再去数据库请求一次数据
  */
 @Service
-public class FixedInfoQueryServiceImpl {
+public class FixedInfoQueryServiceImpl implements FixedInfoQueryService {
     private static JSONObject timeFormatResult = new JSONObject();
     private static JSONObject categoryInfoResult = new JSONObject();
     private static long queryMiliTime = System.currentTimeMillis();

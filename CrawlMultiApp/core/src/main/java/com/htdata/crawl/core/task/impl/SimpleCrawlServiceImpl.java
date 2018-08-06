@@ -1,16 +1,20 @@
-package com.htdata.crawl.core.service;
+package com.htdata.crawl.core.task.impl;
 
 import com.htdata.crawl.core.CoreApplication;
 import com.htdata.crawl.core.constant.CommonConfig;
 import com.htdata.crawl.core.dao.CrawlContentInfoDao;
 import com.htdata.crawl.core.entity.CrawlContentEntity;
 import com.htdata.crawl.core.manager.HttpUtil;
+import com.htdata.crawl.core.manager.JsoupParseManager;
+import com.htdata.crawl.core.manager.UrlContainerManager;
+import com.htdata.crawl.core.task.CrawlTaskService;
 import lombok.extern.slf4j.Slf4j;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Service;
 
 import java.net.URLEncoder;
@@ -19,16 +23,16 @@ import java.util.Date;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
 @Slf4j
+@ConditionalOnProperty(name = "simpleCrawl",havingValue = "true")
 @Service
-public class SelfMadeCrawlServiceImpl {
+public class SimpleCrawlServiceImpl implements CrawlTaskService {
     @Autowired
-    private UrlStoreServiceImpl urlStoreServiceImpl;
+    private UrlContainerManager urlContainerManager;
     @Autowired
     private HttpUtil httpUtil;
     @Autowired
-    private JsoupParseServiceImpl jsoupParseServiceImpl;
+    private JsoupParseManager jsoupParseManager;
     @Autowired
     private CrawlContentInfoDao crawlContentInfoDao;
 
@@ -94,8 +98,8 @@ public class SelfMadeCrawlServiceImpl {
         for (int i = 1; i < 100; i++) {
             for (String seedUrl : preparedList) {
                 // 将种子url地址放入hashSet中，作为后期判别是否阅览过
-                if (!urlStoreServiceImpl.urlExists(seedUrl)) {
-                    urlStoreServiceImpl.storeUrlToSet(seedUrl);
+                if (!urlContainerManager.urlExists(seedUrl)) {
+                    urlContainerManager.storeUrlToSet(seedUrl);
                 } else {
                     continue;
                 }
@@ -104,12 +108,12 @@ public class SelfMadeCrawlServiceImpl {
                 log.info("已存：" + seedUrl);
                 try {
                     String html = httpUtil.httpGet(seedUrl);
-                    String time = jsoupParseServiceImpl.getNewsInfo(html, "time", false);
-                    String timeHtml = jsoupParseServiceImpl.getNewsInfo(html, "time", true);
-                    String title = jsoupParseServiceImpl.getNewsInfo(html, "title", false);
-                    String titleHtml = jsoupParseServiceImpl.getNewsInfo(html, "title", true);
-                    String content = jsoupParseServiceImpl.getNewsInfo(html, "content", false);
-                    String contentHtml = jsoupParseServiceImpl.getNewsInfo(html, "content", true);
+                    String time = jsoupParseManager.getNewsInfo(html, "time", false);
+                    String timeHtml = jsoupParseManager.getNewsInfo(html, "time", true);
+                    String title = jsoupParseManager.getNewsInfo(html, "title", false);
+                    String titleHtml = jsoupParseManager.getNewsInfo(html, "title", true);
+                    String content = jsoupParseManager.getNewsInfo(html, "content", false);
+                    String contentHtml = jsoupParseManager.getNewsInfo(html, "content", true);
                     String keyMessage = CoreApplication.config.get(CommonConfig.WEBSITE_INFO);
                     if (content != null && title != null && !content.equals("") && !title.equals("")) {
                         CrawlContentEntity ce = new CrawlContentEntity();
@@ -120,7 +124,7 @@ public class SelfMadeCrawlServiceImpl {
                         ce.setCrawled_date_html(timeHtml.trim().substring(0,
                                 timeHtml.trim().length() > 500 ? 500 : timeHtml.trim().length()));
                         ce.setCrawled_content(content.trim());
-                        ce.setCrawled_content_html(jsoupParseServiceImpl
+                        ce.setCrawled_content_html(jsoupParseManager
                                 .makeUrlInHtmlAbsolute(contentHtml, seedUrl, CoreApplication.config.get(CommonConfig.WEB_URL)).trim());
                         ce.setKey_message(keyMessage);
                         ce.setCategory(CoreApplication.config.get(CommonConfig.CATEGORY_KEY_WORDS));
@@ -140,7 +144,7 @@ public class SelfMadeCrawlServiceImpl {
                     if (!urlPass(string, baseUrl)) {
                         continue;
                     }
-                    if (!urlStoreServiceImpl.urlExists(string)) {
+                    if (!urlContainerManager.urlExists(string)) {
                         tempList.add(string);
                     }
                 }

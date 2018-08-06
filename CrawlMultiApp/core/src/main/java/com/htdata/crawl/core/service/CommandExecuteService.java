@@ -1,12 +1,14 @@
 package com.htdata.crawl.core.service;
 
+import com.alibaba.fastjson.JSONObject;
 import com.htdata.crawl.core.entity.request.CrawlParamEntity;
+import com.htdata.crawl.core.entity.response.BaseResponse;
 
 public interface CommandExecuteService {
     /**
-     * 分解参数，并调用执行命令的方法
+     *
      * @param crawlParamEntity
-     * @return
+     * @return 包含是否成功和信息
      */
-    public int processParamAndExecute(CrawlParamEntity crawlParamEntity);
+    BaseResponse processParamAndExecute(CrawlParamEntity crawlParamEntity);
 }

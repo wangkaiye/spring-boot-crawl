@@ -1,25 +1,27 @@
-package com.htdata.crawl.core.service;
+package com.htdata.crawl.core.task.impl;
 
+import com.htdata.crawl.core.manager.UrlContainerManager;
+import com.htdata.crawl.core.task.CrawlTaskService;
 import edu.uci.ics.crawler4j.crawler.Page;
 import edu.uci.ics.crawler4j.crawler.WebCrawler;
 import edu.uci.ics.crawler4j.parser.HtmlParseData;
 import edu.uci.ics.crawler4j.url.WebURL;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Service;
 
 import java.util.regex.Pattern;
+
 @Slf4j
+@ConditionalOnProperty(name = "frameCrawl",havingValue = "true")
 @Service
-public class Crawl4jOriginalServiceImpl  extends WebCrawler {
+public class FrameForCrawlServiceImpl extends WebCrawler implements CrawlTaskService {
+
+    private static final Pattern FILTERS = Pattern.compile(".*(\\.(css|js|gif|jpg|png|mp3|mp3|zip|gz|pdf|doc))$");
 
     @Autowired
-    private UrlStoreServiceImpl urlStoreServiceImpl;
-
-    /**
-     * 正则匹配指定的后缀文件
-     */
-    private final static Pattern FILTERS = Pattern.compile(".*(\\.(css|js|gif|jpg|png|mp3|mp3|zip|gz|pdf|doc))$");
+    private UrlContainerManager urlContainerManager;
 
     /**
      * 这个方法主要是决定哪些url我们需要抓取，返回true表示是我们需要的，返回false表示不是我们需要的Url
@@ -39,9 +41,9 @@ public class Crawl4jOriginalServiceImpl  extends WebCrawler {
     @Override
     public void visit(Page page) {
         String url = page.getWebURL().getURL(); // 获取url
-        boolean exist = urlStoreServiceImpl.urlExists(url);
+        boolean exist = urlContainerManager.urlExists(url);
         if (!exist) {
-            urlStoreServiceImpl.storeUrlToSet(url);
+            urlContainerManager.storeUrlToSet(url);
             logger.info("url:"+url);
         } else {
             logger.info("url已存在：" + url);
@@ -93,4 +95,5 @@ public class Crawl4jOriginalServiceImpl  extends WebCrawler {
 //			}
         }
     }
+
 }

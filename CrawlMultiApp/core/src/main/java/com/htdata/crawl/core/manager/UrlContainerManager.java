@@ -1,15 +1,15 @@
-package com.htdata.crawl.core.service;
+package com.htdata.crawl.core.manager;
 
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Component;
 
 import java.security.MessageDigest;
 import java.util.HashSet;
 
 /**
- * 去重
+ * url去重
  */
-@Service
-public class UrlStoreServiceImpl {
+@Component
+public class UrlContainerManager {
 
     private static HashSet<String> hashSet = new HashSet<>();
 
@@ -41,5 +41,4 @@ public class UrlStoreServiceImpl {
     public void storeUrlToSet(String url) {
         hashSet.add(md5(url.toLowerCase()));
     }
-
 }

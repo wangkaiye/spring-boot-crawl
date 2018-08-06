@@ -1,9 +1,11 @@
 package com.htdata.crawl.core.service;
 
-import com.htdata.crawl.core.constant.ContentType;
+import com.htdata.crawl.core.constant.ContentTypeEnum;
+import com.htdata.crawl.core.entity.request.PageParseEntity;
+import com.htdata.crawl.core.entity.response.BaseResponse;
 
 public interface PageContentParseService {
 
-    public String getParseInfo(ContentType contentType);
+    BaseResponse getParseInfo(PageParseEntity pageParseEntity, ContentTypeEnum contentType);
 
 }

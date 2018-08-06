@@ -12,8 +12,15 @@ public class TimeFormatDao {
     @Autowired
     private JdbcTemplate jdbcTemplate;
 
-    public List<Map<String, Object>> getTimeFormat(){
-        return jdbcTemplate.queryForList("select * from abstract_crawl_date_format");
+    private long miliseconds;
+    private List<Map<String, Object>> timeInfoList;
+
+    public List<Map<String, Object>> getTimeFormat() {
+        if (miliseconds == 0L || System.currentTimeMillis() - miliseconds > 3600000L) {
+            miliseconds = System.currentTimeMillis();
+            timeInfoList = jdbcTemplate.queryForList("select * from time_info");
+        }
+        return timeInfoList;
     }
 
 }

@@ -3,7 +3,6 @@ package com.htdata.crawl.core.task.impl;
 import com.htdata.crawl.core.CoreApplication;
 import com.htdata.crawl.core.constant.CommonConfig;
 import com.htdata.crawl.core.dao.CrawlContentInfoDao;
-import com.htdata.crawl.core.entity.CrawlContentEntity;
 import com.htdata.crawl.core.manager.HttpUtil;
 import com.htdata.crawl.core.manager.JsoupParseManager;
 import com.htdata.crawl.core.manager.UrlContainerManager;
@@ -19,7 +18,6 @@ import org.springframework.stereotype.Service;
 
 import java.net.URLEncoder;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -108,46 +106,46 @@ public class SimpleCrawlServiceImpl implements CrawlTaskService {
                 log.info("已存：" + seedUrl);
                 try {
                     String html = httpUtil.httpGet(seedUrl);
-                    String time = jsoupParseManager.getNewsInfo(html, "time", false);
-                    String timeHtml = jsoupParseManager.getNewsInfo(html, "time", true);
-                    String title = jsoupParseManager.getNewsInfo(html, "title", false);
-                    String titleHtml = jsoupParseManager.getNewsInfo(html, "title", true);
-                    String content = jsoupParseManager.getNewsInfo(html, "content", false);
-                    String contentHtml = jsoupParseManager.getNewsInfo(html, "content", true);
-                    String keyMessage = CoreApplication.config.get(CommonConfig.WEBSITE_INFO);
-                    if (content != null && title != null && !content.equals("") && !title.equals("")) {
-                        CrawlContentEntity ce = new CrawlContentEntity();
-                        ce.setCrawled_title(title.trim());
-                        ce.setCrawled_title_html(titleHtml.trim().substring(0,
-                                titleHtml.trim().length() > 500 ? 500 : titleHtml.trim().length()));
-                        ce.setCrawled_date(time.trim());
-                        ce.setCrawled_date_html(timeHtml.trim().substring(0,
-                                timeHtml.trim().length() > 500 ? 500 : timeHtml.trim().length()));
-                        ce.setCrawled_content(content.trim());
-                        ce.setCrawled_content_html(jsoupParseManager
-                                .makeUrlInHtmlAbsolute(contentHtml, seedUrl, CoreApplication.config.get(CommonConfig.WEB_URL)).trim());
-                        ce.setKey_message(keyMessage);
-                        ce.setCategory(CoreApplication.config.get(CommonConfig.CATEGORY_KEY_WORDS));
-                        ce.setCategory_id(CoreApplication.config.get(CommonConfig.CATEGORY_ID_KEY_WORDS));
-                        ce.setCrawl_store(CoreApplication.config.get(CommonConfig.CRAWL_STORE));
-                        ce.setUrl(seedUrl);
-                        ce.setJob_date(new Date());
-                        crawlContentInfoDao.insert(ce);
-                    }
+//                    String time = jsoupParseManager.getNewsInfo(html, "time", false);
+//                    String timeHtml = jsoupParseManager.getNewsInfo(html, "time", true);
+//                    String title = jsoupParseManager.getNewsInfo(html, "title", false);
+//                    String titleHtml = jsoupParseManager.getNewsInfo(html, "title", true);
+//                    String content = jsoupParseManager.getNewsInfo(html, "content", false);
+//                    String contentHtml = jsoupParseManager.getNewsInfo(html, "content", true);
+//                    String keyMessage = CoreApplication.config.get(CommonConfig.WEBSITE_INFO);
+//                    if (content != null && title != null && !content.equals("") && !title.equals("")) {
+//                        CrawlContentEntity ce = new CrawlContentEntity();
+//                        ce.setCrawled_title(title.trim());
+//                        ce.setCrawled_title_html(titleHtml.trim().substring(0,
+//                                titleHtml.trim().length() > 500 ? 500 : titleHtml.trim().length()));
+//                        ce.setCrawled_date(time.trim());
+//                        ce.setCrawled_date_html(timeHtml.trim().substring(0,
+//                                timeHtml.trim().length() > 500 ? 500 : timeHtml.trim().length()));
+//                        ce.setCrawled_content(content.trim());
+//                        ce.setCrawled_content_html(jsoupParseManager
+//                                .makeUrlInHtmlAbsolute(contentHtml, seedUrl, CoreApplication.config.get(CommonConfig.WEB_URL)).trim());
+//                        ce.setKey_message(keyMessage);
+//                        ce.setCategory(CoreApplication.config.get(CommonConfig.CATEGORY_KEY_WORDS));
+//                        ce.setCategory_id(CoreApplication.config.get(CommonConfig.CATEGORY_ID_KEY_WORDS));
+//                        ce.setCrawl_store(CoreApplication.config.get(CommonConfig.CRAWL_STORE));
+//                        ce.setUrl(seedUrl);
+//                        ce.setJob_date(new Date());
+//                        crawlContentInfoDao.insert(ce);
+//                    }
                 } catch (Exception e) {
                     log.info("插入数据库失败", e);
                     continue;
                 }
                 // 对于每一个种子url,循环的时候只负责将其页面的url取出，过滤，放入temp中，作为下一轮的种子url
-                List<String> roundList = getUrlList(seedUrl, baseUrl);
-                for (String string : roundList) {
-                    if (!urlPass(string, baseUrl)) {
-                        continue;
-                    }
-                    if (!urlContainerManager.urlExists(string)) {
-                        tempList.add(string);
-                    }
-                }
+//                List<String> roundList = getUrlList(seedUrl, baseUrl);
+//                for (String string : roundList) {
+//                    if (!urlPass(string, baseUrl)) {
+//                        continue;
+//                    }
+//                    if (!urlContainerManager.urlExists(string)) {
+//                        tempList.add(string);
+//                    }
+//                }
             }
             // 结束后，清空preparedList
             preparedList.clear();

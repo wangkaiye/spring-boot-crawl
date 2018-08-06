@@ -1,14 +1,14 @@
 package com.htdata.crawl.core;
 
-import com.htdata.crawl.core.constant.CommonConfig;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
 
 import java.util.HashMap;
 import java.util.Map;
+
+import static com.htdata.crawl.core.constant.CommonConfig.CRAWL_ID_KEY;
+
 @Slf4j
 @SpringBootApplication
 public class CoreApplication {
@@ -18,6 +18,7 @@ public class CoreApplication {
     public static Map<String, String> config = new HashMap<>();
 
     public static void main(String[] args) throws InterruptedException {
+    	System.setProperty(CRAWL_ID_KEY,args[0]);
         SpringApplication.run(CoreApplication.class, args);
 
         /**
@@ -38,31 +39,31 @@ public class CoreApplication {
 		 * 9.登陆用户--user
 		 */
 
-		for (int i = 0; i < args.length; i++) {
-			int splitCodeAt = args[i].indexOf(CommonConfig.SPLIT_CHAR);
-			String key = args[i].substring(0, splitCodeAt);
-			String value = args[i].substring(splitCodeAt + CommonConfig.SPLIT_CHAR.length());
-			if (key.equals(CommonConfig.SEED_URL)) {
-				config.put(key, value);
-			} else {
-				config.put(key, StringUtils.replace(value, CommonConfig.SPACE_CHAR_REPLACE, " "));
-			}
-		}
-		log.info("网站url:" + config.get(CommonConfig.WEB_URL));
-		log.info("titleKeywords:" + config.get(CommonConfig.TITLE_KEY_WORDS));
-		log.info("timeKeywords:" + config.get(CommonConfig.TIME_KEY_WORDS));
-		log.info("timeRegix:" + config.get(CommonConfig.TIME_REGIX));
-		log.info("contentKeywords:" + config.get(CommonConfig.CONTENT_KEY_WORDS));
-		log.info("爬取内容存储位置:" + config.get(CommonConfig.CRAWL_STORE));
-		log.info("网站描述:" + config.get(CommonConfig.WEBSITE_INFO));
-		log.info("消息类型:" + config.get(CommonConfig.CATEGORY_KEY_WORDS));
-		log.info("消息类型ID:" + config.get(CommonConfig.CATEGORY_ID_KEY_WORDS));
-		log.info("时间格式:" + config.get(CommonConfig.TIME_FORMAT_KEY_WORDS));
-		String allSeedUrls = config.get(CommonConfig.SEED_URL);
-		String[] seeds = allSeedUrls.split(CommonConfig.SPACE_CHAR_REPLACE);
-		for (int i = 0; i < seeds.length; i++) {
-			log.info("种子url地址" + i + ":" + seeds[i]);
-		}
+//		for (int i = 0; i < args.length; i++) {
+//			int splitCodeAt = args[i].indexOf(CommonConfig.SPLIT_CHAR);
+//			String key = args[i].substring(0, splitCodeAt);
+//			String value = args[i].substring(splitCodeAt + CommonConfig.SPLIT_CHAR.length());
+//			if (key.equals(CommonConfig.SEED_URL)) {
+//				config.put(key, value);
+//			} else {
+//				config.put(key, StringUtils.replace(value, CommonConfig.SPACE_CHAR_REPLACE, " "));
+//			}
+//		}
+//		log.info("网站url:" + config.get(CommonConfig.WEB_URL));
+//		log.info("titleKeywords:" + config.get(CommonConfig.TITLE_KEY_WORDS));
+//		log.info("timeKeywords:" + config.get(CommonConfig.TIME_KEY_WORDS));
+//		log.info("timeRegix:" + config.get(CommonConfig.TIME_REGIX));
+//		log.info("contentKeywords:" + config.get(CommonConfig.CONTENT_KEY_WORDS));
+//		log.info("爬取内容存储位置:" + config.get(CommonConfig.CRAWL_STORE));
+//		log.info("网站描述:" + config.get(CommonConfig.WEBSITE_INFO));
+//		log.info("消息类型:" + config.get(CommonConfig.CATEGORY_KEY_WORDS));
+//		log.info("消息类型ID:" + config.get(CommonConfig.CATEGORY_ID_KEY_WORDS));
+//		log.info("时间格式:" + config.get(CommonConfig.TIME_FORMAT_KEY_WORDS));
+//		String allSeedUrls = config.get(CommonConfig.SEED_URL);
+//		String[] seeds = allSeedUrls.split(CommonConfig.SPACE_CHAR_REPLACE);
+//		for (int i = 0; i < seeds.length; i++) {
+//			log.info("种子url地址" + i + ":" + seeds[i]);
+//		}
         /**
          * crawl4j.download
          */

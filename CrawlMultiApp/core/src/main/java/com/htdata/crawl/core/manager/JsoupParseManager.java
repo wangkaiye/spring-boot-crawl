@@ -1,7 +1,5 @@
 package com.htdata.crawl.core.manager;
 
-import com.htdata.crawl.core.CoreApplication;
-import com.htdata.crawl.core.constant.CommonConfig;
 import com.htdata.crawl.core.constant.ContentTypeEnum;
 import com.htdata.crawl.core.dao.CrawlParamInfoDao;
 import org.jsoup.Jsoup;
@@ -11,16 +9,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.regex.Matcher;
 
 @Component
 public class JsoupParseManager {
 
-@Autowired
+    @Autowired
     private CrawlParamInfoDao crawlParamInfoDao;
 
     /**
@@ -44,7 +40,7 @@ public class JsoupParseManager {
         if (text == null) {
             return null;
         }
-        Matcher matcher = crawlParamInfoDao.pattern.matcher(text);
+        Matcher matcher = crawlParamInfoDao.getTimeRegexPatternByTimeId("1").matcher(text);
         String matched = null;
         if (matcher.find()) {
             matched = matcher.group(0);
@@ -59,9 +55,6 @@ public class JsoupParseManager {
 
         return null;
     }
-
-
-
 
 
     public String getTitleInfo(String html, String htmlTag, ContentTypeEnum contentTypeEnum) {
@@ -80,17 +73,18 @@ public class JsoupParseManager {
      * @return
      */
     private String formatDate(String dateStr) throws ParseException {
-        if (CoreApplication.config.get(CommonConfig.TIME_FORMAT_KEY_WORDS).
-                equals("yyyy-MM-dd")) {
-            return dateStr;
-        }
-        if(CoreApplication.config.containsKey(CommonConfig.TIME_REGIX)){
-            needProcessDateFormat = new SimpleDateFormat(CoreApplication.config.get(CommonConfig.TIME_REGIX));
-            Date date = needProcessDateFormat.parse(dateStr);
-            return simpleDateFormat.format(date);
-        }else{
-            return null;
-        }
+//        if (CoreApplication.config.get(CommonConfig.TIME_FORMAT_KEY_WORDS).
+//                equals("yyyy-MM-dd")) {
+//            return dateStr;
+//        }
+//        if(CoreApplication.config.containsKey(CommonConfig.TIME_REGIX)){
+//            needProcessDateFormat = new SimpleDateFormat(CoreApplication.config.get(CommonConfig.TIME_REGIX));
+//            Date date = needProcessDateFormat.parse(dateStr);
+//            return simpleDateFormat.format(date);
+//        }else{
+//            return null;
+//        }
+        return null;
     }
 
 

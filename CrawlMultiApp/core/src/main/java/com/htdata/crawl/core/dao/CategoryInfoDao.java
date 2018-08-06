@@ -12,7 +12,14 @@ public class CategoryInfoDao {
     @Autowired
     private JdbcTemplate jdbcTemplate;
 
-    public List<Map<String, Object>> getCategoryInfo(){
-        return jdbcTemplate.queryForList("select * from abstract_crawl_category");
+    private long miliseconds;
+    private List<Map<String, Object>> categoryInfoList;
+
+    public List<Map<String, Object>> getCategoryInfo() {
+        if (miliseconds == 0L || System.currentTimeMillis() - miliseconds > 3600000L) {
+            miliseconds = System.currentTimeMillis();
+            categoryInfoList = jdbcTemplate.queryForList("select * from site_category_info");
+        }
+        return categoryInfoList;
     }
 }

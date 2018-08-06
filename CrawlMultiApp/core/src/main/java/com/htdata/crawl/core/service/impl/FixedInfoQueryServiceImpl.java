@@ -15,13 +15,13 @@ import java.util.Map;
  */
 @Service
 public class FixedInfoQueryServiceImpl implements FixedInfoQueryService {
-    private static JSONObject timeFormatResult = new JSONObject();
-    private static JSONObject categoryInfoResult = new JSONObject();
-    private static long queryMiliTime = System.currentTimeMillis();
+    private JSONObject timeFormatResult = new JSONObject();
+    private JSONObject categoryInfoResult = new JSONObject();
+    private long queryMiliTime = System.currentTimeMillis();
     /**
      * 24小时有新的请求时才会去数据库更新
      */
-    private static long miliTimeSeperate = 24 * 3600 * 1000;
+    private long miliTimeSeperate = 24 * 3600 * 1000;
     @Autowired
     private TimeFormatDao timeFormatDao;
     @Autowired

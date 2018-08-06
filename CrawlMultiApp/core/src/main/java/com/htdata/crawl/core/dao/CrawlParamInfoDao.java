@@ -1,5 +1,6 @@
 package com.htdata.crawl.core.dao;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
@@ -13,6 +14,7 @@ import static com.htdata.crawl.core.constant.CommonConfig.CRAWL_ID_KEY;
 /**
  * 运行jar包时传入crawl_id，
  */
+@Slf4j
 @Repository
 public class CrawlParamInfoDao {
     @Autowired
@@ -22,8 +24,7 @@ public class CrawlParamInfoDao {
 
     private Pattern timeRegexPattern;
     private long miliseconds;
-    //TODO
-    private int id;
+    //初始化这些参数
     private String titleTag;
     private String timeTag;
     private String contentTag;
@@ -36,7 +37,16 @@ public class CrawlParamInfoDao {
     private int timeId;
     private String areaId;
 
-    static {
+    CrawlParamInfoDao() {
+        int crawlIdInt = 0;
+        try {
+            crawlIdInt = Integer.parseInt(crawlId);
+        } catch (NumberFormatException e) {
+            e.printStackTrace();
+            log.error(e.getMessage());
+        }
+        List<Map<String, Object>> mapList = jdbcTemplate.queryForList("select * from param_info where batch_id = " + crawlIdInt);
+
 
     }
 
@@ -52,4 +62,7 @@ public class CrawlParamInfoDao {
         return timeRegexPattern;
     }
 
+    private void init() {
+
+    }
 }

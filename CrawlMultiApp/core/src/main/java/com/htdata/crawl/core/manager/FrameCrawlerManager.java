@@ -1,11 +1,14 @@
 package com.htdata.crawl.core.manager;
 
+import com.htdata.crawl.core.CoreApplication;
 import com.htdata.crawl.core.constant.ContentTypeEnum;
 import com.htdata.crawl.core.dao.CrawlParamInfoDao;
+import com.htdata.crawl.core.task.CrawlTaskService;
 import edu.uci.ics.crawler4j.crawler.Page;
 import edu.uci.ics.crawler4j.crawler.WebCrawler;
 import edu.uci.ics.crawler4j.parser.HtmlParseData;
 import edu.uci.ics.crawler4j.url.WebURL;
+import org.apache.commons.lang3.time.FastDateFormat;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -13,17 +16,23 @@ import java.util.regex.Pattern;
 
 public class FrameCrawlerManager extends WebCrawler {
 
-    private Pattern filters = Pattern.compile(".*(\\.(css|js|gif|jpg|png|mp3|mp3|zip|gz|pdf|doc))$");
+    private Pattern filters = Pattern.compile(".*(\\.(css|js|gif|jpg|png|mp3|mp4|zip|gz|pdf|doc))$");
 
+    private UrlContainerManager urlContainerManager=
+            CoreApplication.configurableApplicationContext.getBean(UrlContainerManager.class);
 
-    private UrlContainerManager urlContainerManager=new UrlContainerManager();
+    private CrawlParamInfoDao crawlParamInfoDao=
+            CoreApplication.configurableApplicationContext.getBean(CrawlParamInfoDao.class);
 
-    private static CrawlParamInfoDao crawlParamInfoDao=new CrawlParamInfoDao();
+    private JsoupParseManager jsoupParseManager=
+            CoreApplication.configurableApplicationContext.getBean(JsoupParseManager.class);
+    private FastDateFormat actualFastDateFormat;
 
-    private JsoupParseManager jsoupParseManager=new JsoupParseManager();
+    @Override
+    public void onStart() {
 
-    static {
-        crawlParamInfoDao.init();
+        crawlParamInfoDao.init(System.getProperty("crawlId"));
+        actualFastDateFormat = FastDateFormat.getInstance(crawlParamInfoDao.getTimeFormat());
     }
 
     /**
@@ -34,7 +43,7 @@ public class FrameCrawlerManager extends WebCrawler {
     public boolean shouldVisit(Page referringPage, WebURL url) {
         String href = url.getURL().toLowerCase(); // 得到小写的url
         return !filters.matcher(href).matches() // 正则匹配，过滤掉我们不需要的后缀文件
-                && href.startsWith(crawlParamInfoDao.webUrl);
+                && href.startsWith(crawlParamInfoDao.getWebUrl());
     }
 
     /**
@@ -51,15 +60,17 @@ public class FrameCrawlerManager extends WebCrawler {
             logger.info("url已存在：" + url);
             return;
         }
-        if (!url.startsWith(crawlParamInfoDao.webUrl)) {
+        if (!url.startsWith(crawlParamInfoDao.getWebUrl())) {
             return;
         }
         if (page.getParseData() instanceof HtmlParseData) { // 判断是否是html数据
             HtmlParseData htmlParseData = (HtmlParseData) page.getParseData(); // 强制类型转换，获取html数据对象
             String html = htmlParseData.getHtml(); // 获取页面Html
-            String title = jsoupParseManager.getTitleInfo(html,crawlParamInfoDao.titleTag,ContentTypeEnum.TEXT);
+            String title = jsoupParseManager.getTitleInfo(html,crawlParamInfoDao.getTitleTag(),ContentTypeEnum.TEXT);
+            String time = jsoupParseManager.getTimeInfo(html,crawlParamInfoDao.getTimeTag(),ContentTypeEnum.TEXT,
+                    crawlParamInfoDao.getTimeRegexPattern(),crawlParamInfoDao.getTimeFormat(),actualFastDateFormat);
             System.out.println(title);
-
+            System.out.println(time);
 //            TestContentEntity tce = new TestContentEntity();
 //            tce.setCrawled_content_html(html);
 //            tce.setKey_message("数据分析组车桥数据");

@@ -1,5 +1,6 @@
 package com.htdata.crawl.core.dao;
 
+import com.htdata.crawl.core.CoreApplication;
 import com.htdata.crawl.core.constant.CommonConfig;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,31 +22,30 @@ import java.util.regex.Pattern;
 @Component
 public class CrawlParamInfoDao {
 
-    @Autowired
-    private JdbcTemplate jdbcTemplate;
-    public Pattern timeRegexPattern;
-    public String categoryName;
-    public String timeRegex;
-    public String timeFormat;
-    public String areaName;
-    public String webUrl;
-    public String titleTag;
-    public String timeTag;
-    public String contentTag;
-    public int categoryId;
-    public int timeId;
-    public String areaId;
-    public List<String> seedUrlList=new ArrayList<>();
-    public String crawlStorePrefix;
-    public String siteDescription;
-    public String detailInfoTablePrefix;
-    public String filteredInfoTablePrefix;
+    private Pattern timeRegexPattern;
+    private String categoryName;
+    private String timeRegex;
+    private String timeFormat;
+    private String areaName;
+    private String webUrl;
+    private String titleTag;
+    private String timeTag;
+    private String contentTag;
+    private int categoryId;
+    private int timeId;
+    private String areaId;
+    private List<String> seedUrlList=new ArrayList<>();
+    private String crawlStorePrefix;
+    private String siteDescription;
+    private String detailInfoTablePrefix;
+    private String filteredInfoTablePrefix;
 
-    public void init(){
+    public void init(String crawlId){
+        JdbcTemplate jdbcTemplate = CoreApplication.configurableApplicationContext.getBean(JdbcTemplate.class);
         int crawlIdInt = 0;
         try {
             //对应数据库中的batch_id，它表示一个批次，但是同一个网站可能有多个批次（比如所用的爬取数据标签不同）
-            crawlIdInt = Integer.parseInt(System.getProperty(CommonConfig.CRAWL_BATCH_ID_KEY));
+            crawlIdInt = Integer.parseInt(crawlId);
         } catch (NumberFormatException e) {
             e.printStackTrace();
             log.error(e.getMessage());
@@ -95,4 +95,71 @@ public class CrawlParamInfoDao {
         areaName = areaMap.get("area_name").toString();
     }
 
+    public Pattern getTimeRegexPattern() {
+        return timeRegexPattern;
+    }
+
+    public String getCategoryName() {
+        return categoryName;
+    }
+
+    public String getTimeRegex() {
+        return timeRegex;
+    }
+
+    public String getTimeFormat() {
+        return timeFormat;
+    }
+
+    public String getAreaName() {
+        return areaName;
+    }
+
+    public String getWebUrl() {
+        return webUrl;
+    }
+
+    public String getTitleTag() {
+        return titleTag;
+    }
+
+    public String getTimeTag() {
+        return timeTag;
+    }
+
+    public String getContentTag() {
+        return contentTag;
+    }
+
+    public int getCategoryId() {
+        return categoryId;
+    }
+
+    public int getTimeId() {
+        return timeId;
+    }
+
+    public String getAreaId() {
+        return areaId;
+    }
+
+    public List<String> getSeedUrlList() {
+        return seedUrlList;
+    }
+
+    public String getCrawlStorePrefix() {
+        return crawlStorePrefix;
+    }
+
+    public String getSiteDescription() {
+        return siteDescription;
+    }
+
+    public String getDetailInfoTablePrefix() {
+        return detailInfoTablePrefix;
+    }
+
+    public String getFilteredInfoTablePrefix() {
+        return filteredInfoTablePrefix;
+    }
 }

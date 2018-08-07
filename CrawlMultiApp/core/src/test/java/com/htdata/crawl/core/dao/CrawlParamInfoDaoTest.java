@@ -13,8 +13,7 @@ public class CrawlParamInfoDaoTest extends CoreApplicationTests {
 
     @Test
     public void init() {
-        System.setProperty(CommonConfig.CRAWL_BATCH_ID_KEY,"1");
-        crawlParamInfoDao.init();
-        System.out.println(crawlParamInfoDao.areaId);
+//        crawlParamInfoDao.init("1");
+//        System.out.println(crawlParamInfoDao.getAreaId());
     }
 }

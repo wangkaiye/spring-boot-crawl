@@ -1,6 +1,7 @@
 package com.htdata.crawl.core.task.impl;
 
 
+import com.htdata.crawl.core.CoreApplication;
 import com.htdata.crawl.core.dao.CrawlParamInfoDao;
 import com.htdata.crawl.core.manager.FrameCrawlerManager;
 import com.htdata.crawl.core.task.CrawlTaskService;
@@ -12,6 +13,7 @@ import edu.uci.ics.crawler4j.robotstxt.RobotstxtServer;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -22,15 +24,17 @@ public class FrameForCrawlServiceImpl implements CrawlTaskService {
     @Autowired
     private CrawlParamInfoDao crawlParamInfoDao;
 
-    private int CRAWL_THREAD_NUMBER = 5;
+    private int CRAWL_THREAD_NUMBER = CoreApplication.CRAWL_THREAD_NUMBER;
 
     @Override
     public void crawl() {
         /**
          * crawl4j.download
          */
+        crawlParamInfoDao.init(System.getProperty("crawlId"));
+        System.out.println(System.getProperty("crawlId"));
         CrawlConfig crawlConfig = new CrawlConfig(); // 定义爬虫配置
-        crawlConfig.setCrawlStorageFolder(crawlParamInfoDao.crawlStorePrefix+crawlParamInfoDao.siteDescription+"_"+System.currentTimeMillis()+".log");
+        crawlConfig.setCrawlStorageFolder(crawlParamInfoDao.getCrawlStorePrefix()+crawlParamInfoDao.getSiteDescription());
         // 设置爬虫文件存储位置
         crawlConfig.setUserAgentString(
                 "Mozilla/5.0 (Windows NT 6.3; Win64; x64)AppleWebKit / 537.36 (KHTML, like Gecko)Chrome / 61.0 .3163 .91Safari / 537.36 ");
@@ -47,7 +51,7 @@ public class FrameForCrawlServiceImpl implements CrawlTaskService {
             e.printStackTrace();
         }
         // 配置爬虫种子页面，就是规定的从哪里开始爬，可以配置多个种子页面
-        for (String string : crawlParamInfoDao.seedUrlList) {
+        for (String string : crawlParamInfoDao.getSeedUrlList()) {
             controller.addSeed(string);
         }
         /**

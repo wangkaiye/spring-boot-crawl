@@ -12,5 +12,4 @@ public class CategoryInfoDaoTest extends CoreApplicationTests {
     public void getCategoryInfo() {
         System.out.println(categoryInfoDao.getCategoryInfo());
     }
-
 }

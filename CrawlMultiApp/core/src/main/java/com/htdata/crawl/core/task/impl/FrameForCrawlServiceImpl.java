@@ -1,99 +1,58 @@
 package com.htdata.crawl.core.task.impl;
 
-import com.htdata.crawl.core.manager.UrlContainerManager;
+
+import com.htdata.crawl.core.dao.CrawlParamInfoDao;
+import com.htdata.crawl.core.manager.FrameCrawlerManager;
 import com.htdata.crawl.core.task.CrawlTaskService;
-import edu.uci.ics.crawler4j.crawler.Page;
-import edu.uci.ics.crawler4j.crawler.WebCrawler;
-import edu.uci.ics.crawler4j.parser.HtmlParseData;
-import edu.uci.ics.crawler4j.url.WebURL;
+import edu.uci.ics.crawler4j.crawler.CrawlConfig;
+import edu.uci.ics.crawler4j.crawler.CrawlController;
+import edu.uci.ics.crawler4j.fetcher.PageFetcher;
+import edu.uci.ics.crawler4j.robotstxt.RobotstxtConfig;
+import edu.uci.ics.crawler4j.robotstxt.RobotstxtServer;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Service;
-
-import java.util.regex.Pattern;
+import org.springframework.transaction.annotation.Transactional;
 
 @Slf4j
-@ConditionalOnProperty(name = "frameCrawl",havingValue = "true")
+//@ConditionalOnProperty(name = "frameCrawl", havingValue = "true")
 @Service
-public class FrameForCrawlServiceImpl extends WebCrawler implements CrawlTaskService {
-
-    private static final Pattern FILTERS = Pattern.compile(".*(\\.(css|js|gif|jpg|png|mp3|mp3|zip|gz|pdf|doc))$");
-
+public class FrameForCrawlServiceImpl implements CrawlTaskService {
     @Autowired
-    private UrlContainerManager urlContainerManager;
+    private CrawlParamInfoDao crawlParamInfoDao;
 
-    /**
-     * 这个方法主要是决定哪些url我们需要抓取，返回true表示是我们需要的，返回false表示不是我们需要的Url
-     * 第一个参数referringPage封装了当前爬取的页面信息 第二个参数url封装了当前爬取的页面url信息
-     */
+    private int CRAWL_THREAD_NUMBER = 5;
+
     @Override
-    public boolean shouldVisit(Page referringPage, WebURL url) {
-        String href = url.getURL().toLowerCase(); // 得到小写的url
-        return !FILTERS.matcher(href).matches() // 正则匹配，过滤掉我们不需要的后缀文件
-//				&& href.startsWith(Main.config.get(CommonConfig.WEB_URL));
-                && href.startsWith("https://www.marklines.com");// url必须是http://www.java1234.com/开头，规定站点
+    public void crawl() {
+        /**
+         * crawl4j.download
+         */
+        CrawlConfig crawlConfig = new CrawlConfig(); // 定义爬虫配置
+        crawlConfig.setCrawlStorageFolder(crawlParamInfoDao.crawlStorePrefix+crawlParamInfoDao.siteDescription+"_"+System.currentTimeMillis()+".log");
+        // 设置爬虫文件存储位置
+        crawlConfig.setUserAgentString(
+                "Mozilla/5.0 (Windows NT 6.3; Win64; x64)AppleWebKit / 537.36 (KHTML, like Gecko)Chrome / 61.0 .3163 .91Safari / 537.36 ");
+        PageFetcher pageFetcher = new PageFetcher(crawlConfig); // 实例化页面获取器
+        RobotstxtConfig robotstxtConfig = new RobotstxtConfig();
+        //实例化爬虫机器人对目标服务器的配置，每个网站都有一个robots.txt文件, 规定了该网站哪些页面可以爬，哪些页面禁止爬，该类是对robots.txt规范的实现
+        RobotstxtServer robotstxtServer = new
+                RobotstxtServer(robotstxtConfig, pageFetcher);
+        // 实例化爬虫控制器
+        CrawlController controller = null;
+        try {
+            controller = new CrawlController(crawlConfig,pageFetcher, robotstxtServer);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        // 配置爬虫种子页面，就是规定的从哪里开始爬，可以配置多个种子页面
+        for (String string : crawlParamInfoDao.seedUrlList) {
+            controller.addSeed(string);
+        }
+        /**
+         * 启动爬虫，爬虫从此刻开始执行爬虫任务，根据以上配置
+         */
+        controller.start(FrameCrawlerManager.class, CRAWL_THREAD_NUMBER);
     }
-
-    /**
-     * 当我们爬到我们需要的页面，这个方法会被调用，我们可以尽情的处理这个页面 page参数封装了所有页面信息
-     */
-    @Override
-    public void visit(Page page) {
-        String url = page.getWebURL().getURL(); // 获取url
-        boolean exist = urlContainerManager.urlExists(url);
-        if (!exist) {
-            urlContainerManager.storeUrlToSet(url);
-            logger.info("url:"+url);
-        } else {
-            logger.info("url已存在：" + url);
-            return;
-        }
-        if(!url.startsWith("https://www.marklines.com/cn")){
-            return;
-        }
-        if (page.getParseData() instanceof HtmlParseData) { // 判断是否是html数据
-            HtmlParseData htmlParseData = (HtmlParseData) page.getParseData(); // 强制类型转换，获取html数据对象
-            String html = htmlParseData.getHtml(); // 获取页面Html
-//            TestContentEntity tce = new TestContentEntity();
-//            tce.setCrawled_content_html(html);
-//            tce.setKey_message("数据分析组车桥数据");
-//            tce.setUrl(url);
-//            new CrawlContentDaoImpl().insertTest(tce);
-//			JsoupParseModel jpm = new JsoupParseModel();
-//			String time = jpm.getNewsInfo(html, "time", false);
-//			String timeHtml = jpm.getNewsInfo(html, "time", true);
-//			String title = jpm.getNewsInfo(html, "title", false);
-//			String titleHtml = jpm.getNewsInfo(html, "title", true);
-//			String content = jpm.getNewsInfo(html, "content", false);
-//			String contentHtml = jpm.getNewsInfo(html, "content", true);
-//			String keyMessage = "keyMessage";
-//			if (content != null && title != null && !content.equals("") && !title.equals("")) {
-//				logger.info("url:" + url);
-//				try {
-//					CrawlContentEntity ce = new CrawlContentEntity();
-//					ce.setCrawled_title(title.trim());
-//					ce.setCrawled_title_html(titleHtml.trim());
-//					ce.setCrawled_date(time.trim());
-//					ce.setCrawled_date_html(timeHtml.trim());
-//					ce.setCrawled_content(content.trim());
-//					ce.setCrawled_content_html(
-//							ChangeHtml.transHtmlHref(contentHtml, url, Main.config.get(CommonConfig.WEB_URL)).trim());
-//					ce.setKey_message(keyMessage);
-//					ce.setCategory(Main.config.get(CommonConfig.CATEGORY_KEY_WORDS));
-//					ce.setCategory_id(Main.config.get(CommonConfig.CATEGORY_ID_KEY_WORDS));
-//					ce.setCrawl_store(Main.config.get(CommonConfig.CRAWL_STORE));
-//					ce.setUrl(url);
-//					ce.setJob_date(new Date());
-//					boolean insertResult = new CrawlContentDaoImpl().insert(ce);
-//					if (!insertResult) {
-//						logger.info("插入数据库失败：" + ce.toString());
-//					}
-//				} catch (Exception e) {
-//					logger.info("插入数据库失败", e);
-//				}
-//			}
-        }
-    }
-
 }

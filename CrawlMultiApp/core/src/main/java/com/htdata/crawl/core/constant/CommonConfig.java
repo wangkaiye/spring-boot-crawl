@@ -72,6 +72,6 @@ public interface CommonConfig {
 	String TIME_FORMAT_KEY_WORDS = "time_format";
 
 
-	String CRAWL_ID_KEY = "crawlId";
+	String CRAWL_BATCH_ID_KEY = "crawlId";
 
 }

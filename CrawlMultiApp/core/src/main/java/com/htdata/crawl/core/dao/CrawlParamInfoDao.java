@@ -1,22 +1,28 @@
 package com.htdata.crawl.core.dao;
 
+import com.htdata.crawl.core.constant.CommonConfig;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Repository;
+import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
 
-import static com.htdata.crawl.core.constant.CommonConfig.CRAWL_ID_KEY;
 
 /**
  * 运行jar包时传入crawl_id，返回必要的参数
  */
 @Slf4j
-@Repository
+@Component
 public class CrawlParamInfoDao {
+
+    @Autowired
+    private JdbcTemplate jdbcTemplate;
     public Pattern timeRegexPattern;
     public String categoryName;
     public String timeRegex;
@@ -29,24 +35,17 @@ public class CrawlParamInfoDao {
     public int categoryId;
     public int timeId;
     public String areaId;
-    public List<String> seedUrlList;
+    public List<String> seedUrlList=new ArrayList<>();
     public String crawlStorePrefix;
     public String siteDescription;
     public String detailInfoTablePrefix;
     public String filteredInfoTablePrefix;
-    @Autowired
-    private JdbcTemplate jdbcTemplate;
-    //对应数据库中的batch_id，它表示一个批次，但是同一个网站可能有多个批次（比如所用的爬取数据标签不同）
-    private String crawlId = System.getProperty(CRAWL_ID_KEY);
-    private long miliSeconds;
 
-    /**
-     * 根据传入的args[0]，初始化必要的参数
-     */
-    CrawlParamInfoDao() {
+    public void init(){
         int crawlIdInt = 0;
         try {
-            crawlIdInt = Integer.parseInt(crawlId);
+            //对应数据库中的batch_id，它表示一个批次，但是同一个网站可能有多个批次（比如所用的爬取数据标签不同）
+            crawlIdInt = Integer.parseInt(System.getProperty(CommonConfig.CRAWL_BATCH_ID_KEY));
         } catch (NumberFormatException e) {
             e.printStackTrace();
             log.error(e.getMessage());

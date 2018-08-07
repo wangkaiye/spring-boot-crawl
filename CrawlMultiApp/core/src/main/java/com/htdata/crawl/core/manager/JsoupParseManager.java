@@ -1,18 +1,14 @@
 package com.htdata.crawl.core.manager;
 
-import com.htdata.crawl.core.CoreApplication;
 import com.htdata.crawl.core.constant.CommonConfig;
 import com.htdata.crawl.core.constant.ContentTypeEnum;
-import com.htdata.crawl.core.dao.CrawlParamInfoDao;
 import org.apache.commons.lang3.time.FastDateFormat;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -22,17 +18,18 @@ import java.util.regex.Pattern;
 @Component
 public class JsoupParseManager {
 
-    @Autowired
-    private CrawlParamInfoDao crawlParamInfoDao;
-
     private FastDateFormat simpleFastDateFormat = FastDateFormat.getInstance("yyyy-MM-dd");
 
+
     /**
-     * @param html             页面原文
-     * @param htmlTag          抽取时间的jsoup标签
-     * @param contentTypeEnum  是否要带标签的字符串
-     * @param pattern          从原文中匹配时间的正则
-     * @param acturlTimeFormat 实际的时间格式
+     * 提取新闻时间
+     *
+     * @param html                 页面原文
+     * @param htmlTag              抽取时间的jsoup标签
+     * @param contentTypeEnum      是否要带标签的字符串
+     * @param pattern              从原文中匹配时间的正则
+     * @param acturlTimeFormat     实际的时间格式
+     * @param actualFastDateFormat 实际的格式Format
      * @return
      */
     public String getTimeInfo(String html, String htmlTag, ContentTypeEnum contentTypeEnum,
@@ -71,10 +68,13 @@ public class JsoupParseManager {
      * 页面的日期均改为yyyy-MM-dd格式存储在数据库中，所以格式需要统一
      *
      * @param dateStr
+     * @param actualTimeFormat
+     * @param acturlFastDateFormat
      * @return
+     * @throws ParseException
      */
-    private String formatDate(String dateStr, String timeFormat, FastDateFormat acturlFastDateFormat) throws ParseException {
-        if (timeFormat.equals("yyyy-MM-dd")) {
+    private String formatDate(String dateStr, String actualTimeFormat, FastDateFormat acturlFastDateFormat) throws ParseException {
+        if (actualTimeFormat.equals("yyyy-MM-dd")) {
             return dateStr;
         } else {
             Date date = acturlFastDateFormat.parse(dateStr);
@@ -83,6 +83,8 @@ public class JsoupParseManager {
     }
 
     /**
+     * 提取新闻标题
+     *
      * @param html            页面原文
      * @param htmlTag         解析标题的jsoup标签
      * @param contentTypeEnum 是否返回带标签的字符串
@@ -107,6 +109,8 @@ public class JsoupParseManager {
     }
 
     /**
+     * 提取新闻内容
+     *
      * @param html            页面原文
      * @param htmlTag         解析文本的jsoup标签
      * @param contentTypeEnum 是否返回带标签的字符串
@@ -173,7 +177,6 @@ public class JsoupParseManager {
         }
         return resultSb.toString();
     }
-
 //    /**
 //     * 替换标签中的href相对路径为绝对路径
 //     *

@@ -1,24 +1,25 @@
 package com.htdata.crawl.core;
 
+import com.htdata.crawl.core.constant.CommonConfig;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.web.servlet.ServletComponentScan;
 
 import java.util.HashMap;
 import java.util.Map;
 
-import static com.htdata.crawl.core.constant.CommonConfig.CRAWL_ID_KEY;
-
 @Slf4j
 @SpringBootApplication
+//@ServletComponentScan
 public class CoreApplication {
 
     // 默认线程数为5，深度为-1（即不限制）
     public static final int CRAWL_THREAD_NUMBER = 5;
     public static Map<String, String> config = new HashMap<>();
 
-    public static void main(String[] args) throws InterruptedException {
-    	System.setProperty(CRAWL_ID_KEY,args[0]);
+    public static void main(String[] args){
+//    	System.setProperty(CommonConfig.CRAWL_BATCH_ID_KEY,"1");
         SpringApplication.run(CoreApplication.class, args);
 
         /**

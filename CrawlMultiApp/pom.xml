@@ -99,6 +99,18 @@
             <version>3.1</version>
         </dependency>
         <!--httpClient end-->
+        <!--&lt;!&ndash; https://mvnrepository.com/artifact/javax.servlet/javax.servlet-api &ndash;&gt;-->
+        <!--<dependency>-->
+            <!--<groupId>javax.servlet</groupId>-->
+            <!--<artifactId>javax.servlet-api</artifactId>-->
+            <!--<version>4.0.1</version>-->
+            <!--<scope>provided</scope>-->
+        <!--</dependency>-->
+        <!-- core模块会被当做单独的jar包来执行任务，所以将该模块取出放入web模块中-->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+        </dependency>
     </dependencies>
 
     <build>

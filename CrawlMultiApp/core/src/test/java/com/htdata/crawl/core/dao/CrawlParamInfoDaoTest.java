@@ -1,6 +1,7 @@
 package com.htdata.crawl.core.dao;
 
 import com.htdata.crawl.core.CoreApplicationTests;
+import com.htdata.crawl.core.constant.CommonConfig;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -11,7 +12,9 @@ public class CrawlParamInfoDaoTest extends CoreApplicationTests {
     private CrawlParamInfoDao crawlParamInfoDao;
 
     @Test
-    public void getTimeRegexPatternByTimeId() {
-        System.out.println(crawlParamInfoDao.getTimeRegexPatternByTimeId("1"));
+    public void init() {
+        System.setProperty(CommonConfig.CRAWL_BATCH_ID_KEY,"1");
+        crawlParamInfoDao.init();
+        System.out.println(crawlParamInfoDao.areaId);
     }
 }

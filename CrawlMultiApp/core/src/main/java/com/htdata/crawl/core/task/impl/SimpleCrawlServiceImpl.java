@@ -22,8 +22,8 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 @Slf4j
-@ConditionalOnProperty(name = "simpleCrawl",havingValue = "true")
-@Service
+//@ConditionalOnProperty(name = "simpleCrawl",havingValue = "true")
+//@Service
 public class SimpleCrawlServiceImpl implements CrawlTaskService {
     @Autowired
     private UrlContainerManager urlContainerManager;

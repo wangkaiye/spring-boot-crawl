@@ -1,6 +1,7 @@
 package com.htdata.crawl.core.manager;
 
 import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 
 import java.security.MessageDigest;
 import java.util.HashSet;
@@ -8,10 +9,10 @@ import java.util.HashSet;
 /**
  * url去重
  */
-@Component
+@Service
 public class UrlContainerManager {
 
-    private static HashSet<String> hashSet = new HashSet<>();
+    private HashSet<String> hashSet = new HashSet<>();
 
     private String md5(String string) {
         char hexDigits[] = { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f' };

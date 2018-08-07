@@ -1,18 +1,26 @@
 package com.htdata.crawl.core.entity.response;
 
-import com.alibaba.fastjson.JSONObject;
-import com.htdata.crawl.core.constant.ResponseInfo;
 import lombok.Data;
 
 @Data
 public class BaseResponse {
 
-    private String msg;
+    /**
+     * 结果代码，200成功
+     */
     private int code;
-    public JSONObject getFailedJson() {
-        JSONObject json = new JSONObject();
-        json.put(ResponseInfo.RESULT_KEY, ResponseInfo.PARAM_ERROR);
-        return json;
-    }
 
+    /**
+     * 响应消息
+     */
+    private String msg;
+
+    /**
+     * 业务数据
+     */
+    private Object data;
+
+    public BaseResponse() {
+        this.code = 404;
+    }
 }

@@ -46,13 +46,11 @@ public class FixedInfoQueryServiceImpl implements FixedInfoQueryService {
             timeFormatResult.clear();
             for (Map<String, Object> map : list) {
                 String id = map.get("id").toString();
-                String time_regix = map.get("time_regix").toString();
+                String time_regix = map.get("time_regex").toString();
                 String time_format = map.get("time_format").toString();
-                String time_example = map.get("time_example").toString();
                 JSONObject json = new JSONObject();
-                json.put("time_regix", time_regix);
+                json.put("time_regex", time_regix);
                 json.put("time_format", time_format);
-                json.put("time_example", time_example);
                 timeFormatResult.put(id, json);
             }
         }
@@ -78,7 +76,7 @@ public class FixedInfoQueryServiceImpl implements FixedInfoQueryService {
             List<Map<String, Object>> list = categoryInfoDao.getCategoryInfo();
             for (Map<String, Object> map : list) {
                 String id = map.get("category_id").toString();
-                String category = map.get("category").toString();
+                String category = map.get("category_name").toString();
                 categoryInfoResult.put(id, category);
             }
         }

@@ -1,38 +1,46 @@
 package com.htdata.crawl.core.manager;
 
 import com.htdata.crawl.core.CoreApplication;
+import com.htdata.crawl.core.constant.CommonConfig;
 import com.htdata.crawl.core.constant.ContentTypeEnum;
-import com.htdata.crawl.core.dao.CrawlParamInfoDao;
-import com.htdata.crawl.core.task.CrawlTaskService;
+import com.htdata.crawl.core.dao.CrawlInfoDao;
+import com.htdata.crawl.core.dao.ParamInfoDao;
+import com.htdata.crawl.core.entity.CrawlInfoEntity;
 import edu.uci.ics.crawler4j.crawler.Page;
 import edu.uci.ics.crawler4j.crawler.WebCrawler;
 import edu.uci.ics.crawler4j.parser.HtmlParseData;
 import edu.uci.ics.crawler4j.url.WebURL;
 import org.apache.commons.lang3.time.FastDateFormat;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
+import org.springframework.jdbc.core.JdbcTemplate;
 
+import java.util.Date;
 import java.util.regex.Pattern;
 
 public class FrameCrawlerManager extends WebCrawler {
 
-    private Pattern filters = Pattern.compile(".*(\\.(css|js|gif|jpg|png|mp3|mp4|zip|gz|pdf|doc))$");
+    private static final Pattern filters = Pattern.compile(".*(\\.(css|js|gif|jpg|png|mp3|mp4|zip|gz|pdf|doc))$");
 
     private UrlContainerManager urlContainerManager=
             CoreApplication.configurableApplicationContext.getBean(UrlContainerManager.class);
 
-    private CrawlParamInfoDao crawlParamInfoDao=
-            CoreApplication.configurableApplicationContext.getBean(CrawlParamInfoDao.class);
+    private ParamInfoDao paramInfoDao =
+            CoreApplication.configurableApplicationContext.getBean(ParamInfoDao.class);
 
     private JsoupParseManager jsoupParseManager=
             CoreApplication.configurableApplicationContext.getBean(JsoupParseManager.class);
     private FastDateFormat actualFastDateFormat;
 
+    private CrawlInfoDao crawlInfoDao =
+            CoreApplication.configurableApplicationContext.getBean(CrawlInfoDao.class);
+
+    private String detailedInfoTableName;
+
     @Override
     public void onStart() {
-
-        crawlParamInfoDao.init(System.getProperty("crawlId"));
-        actualFastDateFormat = FastDateFormat.getInstance(crawlParamInfoDao.getTimeFormat());
+        paramInfoDao.init(System.getProperty(CommonConfig.CRAWL_BATCH_ID_KEY));
+        actualFastDateFormat = FastDateFormat.getInstance(paramInfoDao.getTimeFormat());
+        detailedInfoTableName = paramInfoDao.getDetailInfoTableName();
+        logger.info("urlContainerManager.getHashSet().size()===>"+urlContainerManager.getHashSet().size());
     }
 
     /**
@@ -43,7 +51,7 @@ public class FrameCrawlerManager extends WebCrawler {
     public boolean shouldVisit(Page referringPage, WebURL url) {
         String href = url.getURL().toLowerCase(); // 得到小写的url
         return !filters.matcher(href).matches() // 正则匹配，过滤掉我们不需要的后缀文件
-                && href.startsWith(crawlParamInfoDao.getWebUrl());
+                && href.startsWith(paramInfoDao.getWebUrl());
     }
 
     /**
@@ -52,63 +60,42 @@ public class FrameCrawlerManager extends WebCrawler {
     @Override
     public void visit(Page page) {
         String url = page.getWebURL().getURL(); // 获取url
+        if (!url.startsWith(paramInfoDao.getWebUrl())) {
+            return;
+        }
         boolean exist = urlContainerManager.urlExists(url);
         if (!exist) {
             urlContainerManager.storeUrlToSet(url);
-            logger.info("url:" + url);
         } else {
-            logger.info("url已存在：" + url);
+            logger.info("排除已存在的url=={}",url);
             return;
         }
-        if (!url.startsWith(crawlParamInfoDao.getWebUrl())) {
-            return;
-        }
+        logger.info("通过过滤，准备进行爬取的url:{}",url);
         if (page.getParseData() instanceof HtmlParseData) { // 判断是否是html数据
             HtmlParseData htmlParseData = (HtmlParseData) page.getParseData(); // 强制类型转换，获取html数据对象
             String html = htmlParseData.getHtml(); // 获取页面Html
-            String title = jsoupParseManager.getTitleInfo(html,crawlParamInfoDao.getTitleTag(),ContentTypeEnum.TEXT);
-            String time = jsoupParseManager.getTimeInfo(html,crawlParamInfoDao.getTimeTag(),ContentTypeEnum.TEXT,
-                    crawlParamInfoDao.getTimeRegexPattern(),crawlParamInfoDao.getTimeFormat(),actualFastDateFormat);
-            System.out.println(title);
-            System.out.println(time);
-//            TestContentEntity tce = new TestContentEntity();
-//            tce.setCrawled_content_html(html);
-//            tce.setKey_message("数据分析组车桥数据");
-//            tce.setUrl(url);
-//            new CrawlContentDaoImpl().insertTest(tce);
-//			JsoupParseModel jpm = new JsoupParseModel();
-//			String time = jpm.getNewsInfo(html, "time", false);
-//			String timeHtml = jpm.getNewsInfo(html, "time", true);
-//			String title = jpm.getNewsInfo(html, "title", false);
-//			String titleHtml = jpm.getNewsInfo(html, "title", true);
-//			String content = jpm.getNewsInfo(html, "content", false);
-//			String contentHtml = jpm.getNewsInfo(html, "content", true);
-//			String keyMessage = "keyMessage";
-//			if (content != null && title != null && !content.equals("") && !title.equals("")) {
-//				logger.info("url:" + url);
-//				try {
-//					CrawlContentEntity ce = new CrawlContentEntity();
-//					ce.setCrawled_title(title.trim());
-//					ce.setCrawled_title_html(titleHtml.trim());
-//					ce.setCrawled_date(time.trim());
-//					ce.setCrawled_date_html(timeHtml.trim());
-//					ce.setCrawled_content(content.trim());
-//					ce.setCrawled_content_html(
-//							ChangeHtml.transHtmlHref(contentHtml, url, Main.config.get(CommonConfig.WEB_URL)).trim());
-//					ce.setKey_message(keyMessage);
-//					ce.setCategory(Main.config.get(CommonConfig.CATEGORY_KEY_WORDS));
-//					ce.setCategory_id(Main.config.get(CommonConfig.CATEGORY_ID_KEY_WORDS));
-//					ce.setCrawl_store(Main.config.get(CommonConfig.CRAWL_STORE));
-//					ce.setUrl(url);
-//					ce.setJob_date(new Date());
-//					boolean insertResult = new CrawlContentDaoImpl().insert(ce);
-//					if (!insertResult) {
-//						logger.info("插入数据库失败：" + ce.toString());
-//					}
-//				} catch (Exception e) {
-//					logger.info("插入数据库失败", e);
-//				}
-//			}
+            String title = jsoupParseManager.getTitleInfo(html, paramInfoDao.getTitleTag(),ContentTypeEnum.TEXT);
+            String time = jsoupParseManager.getTimeInfo(html, paramInfoDao.getTimeTag(),ContentTypeEnum.TEXT,
+                    paramInfoDao.getTimeRegexPattern(), paramInfoDao.getTimeFormat(),actualFastDateFormat);
+            String contentHtml = jsoupParseManager.getContentInfo(html,paramInfoDao.getContentTag(),ContentTypeEnum.HTML);
+            if(title==null||time==null||contentHtml==null){
+                logger.info("爬取内容/标题/时间为null ===={}",url);
+                return;
+            }
+            logger.info(title+ time);
+            CrawlInfoEntity crawlInfoEntity = new CrawlInfoEntity();
+            crawlInfoEntity.setUrl(url);
+            crawlInfoEntity.setBatch_id(Integer.parseInt(System.getProperty(CommonConfig.CRAWL_BATCH_ID_KEY)));
+            crawlInfoEntity.setGmt_create(new Date());
+            crawlInfoEntity.setGmt_modified(new Date());
+            crawlInfoEntity.setCrawled_date(time);
+            crawlInfoEntity.setCrawled_title(title);
+            crawlInfoEntity.setCrawled_content_html(contentHtml);
+            crawlInfoEntity.setArea(paramInfoDao.getAreaId());
+            crawlInfoEntity.setIs_filtered(0);
+            crawlInfoEntity.setCategory_id(paramInfoDao.getCategoryId());
+            crawlInfoEntity.setCategory(paramInfoDao.getCategoryName());
+            crawlInfoDao.insert(crawlInfoEntity,detailedInfoTableName);
         }
     }
 }

@@ -9,7 +9,9 @@ import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Repository;
 import org.springframework.stereotype.Service;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
@@ -20,7 +22,7 @@ import java.util.regex.Pattern;
  */
 @Slf4j
 @Component
-public class CrawlParamInfoDao {
+public class ParamInfoDao {
 
     private Pattern timeRegexPattern;
     private String categoryName;
@@ -39,6 +41,7 @@ public class CrawlParamInfoDao {
     private String siteDescription;
     private String detailInfoTablePrefix;
     private String filteredInfoTablePrefix;
+    private String detailInfoTableName;
 
     public void init(String crawlId){
         JdbcTemplate jdbcTemplate = CoreApplication.configurableApplicationContext.getBean(JdbcTemplate.class);
@@ -93,6 +96,11 @@ public class CrawlParamInfoDao {
         }
         Map<String,Object> areaMap = areaMapList.get(0);
         areaName = areaMap.get("area_name").toString();
+        detailInfoTableName = detailInfoTablePrefix+"_"+new SimpleDateFormat("yyyy").format(new Date());
+    }
+
+    public String getDetailInfoTableName() {
+        return detailInfoTableName;
     }
 
     public Pattern getTimeRegexPattern() {

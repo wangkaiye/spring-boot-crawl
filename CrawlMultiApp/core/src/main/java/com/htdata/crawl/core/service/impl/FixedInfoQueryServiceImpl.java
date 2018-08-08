@@ -1,8 +1,8 @@
 package com.htdata.crawl.core.service.impl;
 
 import com.alibaba.fastjson.JSONObject;
-import com.htdata.crawl.core.dao.CategoryInfoDao;
-import com.htdata.crawl.core.dao.TimeFormatDao;
+import com.htdata.crawl.core.dao.SiteCategoryInfoDao;
+import com.htdata.crawl.core.dao.TimeInfoDao;
 import com.htdata.crawl.core.service.FixedInfoQueryService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -23,9 +23,9 @@ public class FixedInfoQueryServiceImpl implements FixedInfoQueryService {
      */
     private long miliTimeSeperate = 24 * 3600 * 1000;
     @Autowired
-    private TimeFormatDao timeFormatDao;
+    private TimeInfoDao timeInfoDao;
     @Autowired
-    private CategoryInfoDao categoryInfoDao;
+    private SiteCategoryInfoDao categoryInfoDao;
 
     /**
      * 获取时间格式
@@ -42,7 +42,7 @@ public class FixedInfoQueryServiceImpl implements FixedInfoQueryService {
             }
         }
         if (ifQueryFromMysql) {
-            List<Map<String, Object>> list = timeFormatDao.getTimeFormat();
+            List<Map<String, Object>> list = timeInfoDao.getTimeFormat();
             timeFormatResult.clear();
             for (Map<String, Object> map : list) {
                 String id = map.get("id").toString();

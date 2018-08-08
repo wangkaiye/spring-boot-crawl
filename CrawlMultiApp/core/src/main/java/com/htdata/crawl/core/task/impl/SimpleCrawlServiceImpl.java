@@ -2,7 +2,7 @@ package com.htdata.crawl.core.task.impl;
 
 import com.htdata.crawl.core.CoreApplication;
 import com.htdata.crawl.core.constant.CommonConfig;
-import com.htdata.crawl.core.dao.CrawlContentInfoDao;
+import com.htdata.crawl.core.dao.CrawlInfoDao;
 import com.htdata.crawl.core.manager.HttpUtil;
 import com.htdata.crawl.core.manager.JsoupParseManager;
 import com.htdata.crawl.core.manager.UrlContainerManager;
@@ -21,61 +21,21 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+/**
+ * 手写爬虫内部管理，在研究透彻crawl4j之前用于补充crawl4j用于爬取可能的设置错误而不能爬取的网站
+ */
 @Slf4j
-//@ConditionalOnProperty(name = "simpleCrawl",havingValue = "true")
-//@Service
+@ConditionalOnProperty(name = CommonConfig.CRAWL_SERVICE_KEY,havingValue = CommonConfig.CRAWL_SERVICE_WITH_SIMPLECRAWL)
+@Service
 public class SimpleCrawlServiceImpl implements CrawlTaskService {
     @Autowired
     private UrlContainerManager urlContainerManager;
     @Autowired
     private HttpUtil httpUtil;
-    @Autowired
-    private JsoupParseManager jsoupParseManager;
-    @Autowired
-    private CrawlContentInfoDao crawlContentInfoDao;
-
-    @SuppressWarnings("deprecation")
-    private static String getEncodeUrl(String url) {
-        String proUrl = url;
-        Pattern pt = Pattern.compile("[\u4e00-\u9fa5]");
-        Matcher mc = pt.matcher(proUrl);
-        while (mc.find()) {
-            proUrl = proUrl.replace(mc.group(), URLEncoder.encode(mc.group()));
-        }
-        return proUrl;
-    }
-
-    /**
-     * 获取页面所有的绝对url
-     *
-     * @param url
-     * @param baseUrl
-     * @return
-     */
-    public static List<String> getUrlList(String url, String baseUrl) {
-        List<String> list = new ArrayList<>();
-        Document doc = null;
-        try {
-            doc = Jsoup.connect(url).get();
-            Elements link = doc.select("a");
-            for (Element element : link) {
-                String absHref = element.attr("abs:href");
-                if (absHref.startsWith(baseUrl)) {
-                    list.add(getEncodeUrl(absHref));
-                }
-            }
-            return list;
-        } catch (Exception e) {
-            e.printStackTrace();
-            return list;
-        }
-    }
 
     private static long count = 0L;
 
-    /**
-     * 用來爬取一些特殊的網站
-     */
     public void crawl() {
         /**
          * 抓的时候填，填完了新的一轮取出来用，用了就删掉
@@ -161,6 +121,45 @@ public class SimpleCrawlServiceImpl implements CrawlTaskService {
         }
         log.info("共爬取了" + count + "个网页。");
     }
+
+    @SuppressWarnings("deprecation")
+    private static String getEncodeUrl(String url) {
+        String proUrl = url;
+        Pattern pt = Pattern.compile("[\u4e00-\u9fa5]");
+        Matcher mc = pt.matcher(proUrl);
+        while (mc.find()) {
+            proUrl = proUrl.replace(mc.group(), URLEncoder.encode(mc.group()));
+        }
+        return proUrl;
+    }
+
+    /**
+     * 获取页面所有的绝对url
+     *
+     * @param url
+     * @param baseUrl
+     * @return
+     */
+    private static List<String> getUrlList(String url, String baseUrl) {
+        List<String> list = new ArrayList<>();
+        Document doc = null;
+        try {
+            doc = Jsoup.connect(url).get();
+            Elements link = doc.select("a");
+            for (Element element : link) {
+                String absHref = element.attr("abs:href");
+                if (absHref.startsWith(baseUrl)) {
+                    list.add(getEncodeUrl(absHref));
+                }
+            }
+            return list;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return list;
+        }
+    }
+
+
 
     private boolean urlPass(String url, String baseUrl) {
         String repl = "";

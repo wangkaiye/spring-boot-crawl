@@ -10,6 +10,7 @@ import edu.uci.ics.crawler4j.crawler.Page;
 import edu.uci.ics.crawler4j.crawler.WebCrawler;
 import edu.uci.ics.crawler4j.parser.HtmlParseData;
 import edu.uci.ics.crawler4j.url.WebURL;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.FastDateFormat;
 import org.springframework.jdbc.core.JdbcTemplate;
 
@@ -78,7 +79,7 @@ public class FrameCrawlerManager extends WebCrawler {
             String time = jsoupParseManager.getTimeInfo(html, paramInfoDao.getTimeTag(),ContentTypeEnum.TEXT,
                     paramInfoDao.getTimeRegexPattern(), paramInfoDao.getTimeFormat(),actualFastDateFormat);
             String contentHtml = jsoupParseManager.getContentInfo(html,paramInfoDao.getContentTag(),ContentTypeEnum.HTML);
-            if(title==null||time==null||contentHtml==null){
+            if (StringUtils.isBlank(title) || StringUtils.isBlank(time) || StringUtils.isBlank(contentHtml)) {
                 logger.info("爬取内容/标题/时间为null ===={}",url);
                 return;
             }

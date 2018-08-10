@@ -6,11 +6,14 @@ import org.apache.commons.lang3.time.FastDateFormat;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.lang.ref.SoftReference;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -19,8 +22,8 @@ import java.util.regex.Pattern;
 public class JsoupParseManager {
 
     private FastDateFormat simpleFastDateFormat = FastDateFormat.getInstance("yyyy-MM-dd");
-
-
+@Autowired
+private TimeFormatAdjustManager timeFormatAdjustManager;
     /**
      * 提取新闻时间
      *
@@ -48,6 +51,7 @@ public class JsoupParseManager {
         if (text == null) {
             return null;
         }
+//        text = timeFormatAdjustManager.getAdjustTime(text);
         Matcher matcher = pattern.matcher(text);
         String matched = null;
         if (matcher.find()) {
@@ -75,8 +79,38 @@ public class JsoupParseManager {
      */
     private String formatDate(String dateStr, String actualTimeFormat, FastDateFormat acturlFastDateFormat) throws ParseException {
         if (actualTimeFormat.equals("yyyy-MM-dd")) {
+            if(dateStr.length()!=10){
+                //改造dateStr
+                List<String> timeSegmentList = new LinkedList<>();
+                String[] timeSegmentArray = dateStr.split("-");
+                for (String timeSegment:timeSegmentArray) {
+                    if(timeSegment.length()==1){
+                        timeSegment = "0"+timeSegment;
+                    }
+                    timeSegmentList.add(timeSegment);
+                }
+                StringBuilder sb = new StringBuilder();
+                for (String timeSegment:timeSegmentList) {
+                    sb.append(timeSegment+"-");
+                }
+                dateStr = sb.substring(0,sb.length()-1);
+            }
             return dateStr;
         } else {
+            if(dateStr.length()!=11){
+                //改造dateStr
+                String year = dateStr.substring(0,5);
+                String[] timeSegmentArray = dateStr.substring(5,dateStr.length()-1).split("月");
+                StringBuilder sb = new StringBuilder();
+                for (int i = 0; i <timeSegmentArray.length ; i++) {
+                    if(timeSegmentArray[i].length()<2){
+                        sb.append("0").append(timeSegmentArray[i]).append("月");
+                    }else{
+                        sb.append(timeSegmentArray[i]).append("月");
+                    }
+                }
+                dateStr = year+sb.substring(0,sb.length()-1)+"日";
+            }
             Date date = acturlFastDateFormat.parse(dateStr);
             return simpleFastDateFormat.format(date);
         }
@@ -270,4 +304,5 @@ public class JsoupParseManager {
 //        }
 //        return resultSb.toString();
 //    }
+
 }

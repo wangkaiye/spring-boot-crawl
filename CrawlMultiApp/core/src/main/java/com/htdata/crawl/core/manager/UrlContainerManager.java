@@ -37,12 +37,11 @@ public class UrlContainerManager {
             List<Map<String,Object>> list = jdbcTemplate.queryForList("select "+column+" from "+tableName);
             if(list!=null&&!list.isEmpty()){
                 for (Map<String,Object> map :list) {
-                    hashSet.add(map.get(column).toString());
+                    hashSet.add(map.get(column).toString().toLowerCase());
                 }
             }
         }
     }
-
     public HashSet<String> getHashSet(){
         return hashSet;
     }

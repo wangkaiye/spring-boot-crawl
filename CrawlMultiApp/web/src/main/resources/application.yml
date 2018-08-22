@@ -5,8 +5,8 @@ spring:
    prefix: /
    suffix: .html
  profiles:
-   active: dev
+   active: pro
 server:
-  port: 8080
+  port: 7091
 logging:
-  path: /logs
+  file: /java-program/crawl-web/logs/log.log

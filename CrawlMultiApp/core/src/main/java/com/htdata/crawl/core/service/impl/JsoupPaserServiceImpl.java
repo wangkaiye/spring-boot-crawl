@@ -38,7 +38,6 @@ public class JsoupPaserServiceImpl implements PageContentParseService {
             return baseResponse;
         }
         String originalPageText = httpUtil.httpGet(webUrl);
-        System.out.println(htmlTag);
         String msg = jsoupParseManager.getContentInfo(originalPageText, htmlTag, contentType);
         ParseContentRes parseContentRes = new ParseContentRes();
         if (StringUtils.isBlank(originalPageText)) {

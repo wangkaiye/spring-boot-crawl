@@ -6,5 +6,5 @@ import lombok.Data;
 public class PageParseEntity {
     private String weburl;
     private String keywords;
-    private String cookie;
+//    private String cookie;
 }

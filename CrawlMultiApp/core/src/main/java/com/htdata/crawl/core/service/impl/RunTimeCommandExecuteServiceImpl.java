@@ -14,7 +14,7 @@ public class RunTimeCommandExecuteServiceImpl implements CommandExecuteService {
     public BaseResponse processParamAndExecute(CrawlParamEntity crawlParamEntity) {
         BaseResponse baseResponse = new BaseResponse();
         baseResponse.setCode(200);
-        baseResponse.setMsg("请联系管理员沟通爬取需求，制定爬取规划并分配对应的数据存储资源！");
+        baseResponse.setMsg("请联系管理员沟通爬取需求，制定爬取计划并分配对应的数据存储资源！");
         return baseResponse;
     }
 

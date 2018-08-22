@@ -17,5 +17,4 @@ public class CrawlInfoEntity {
     private int is_filtered;
     private Date gmt_create;
     private Date gmt_modified;
-
 }

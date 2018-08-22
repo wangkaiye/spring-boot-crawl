@@ -1,152 +1,162 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-<meta charset="utf-8">
-<meta http-equiv="X-UA-Compatible" content="IE=edge">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<!-- 上述3个meta标签*必须*放在最前面，任何其他内容都*必须*跟随其后！ -->
-<meta name="description" content="">
-<meta name="author" content="">
-<link rel="icon" href="../img/favicon.ico">
-<title>测试界面</title>
-<script src="../js/jquery.min.js"></script>
-<script src="../js/bootstrap.min.js"></script>
-<link rel="stylesheet" href="../css/bootstrap.min.css">
-<link rel="stylesheet" href="../css/bootstrap-theme.min.css">
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- 上述3个meta标签*必须*放在最前面，任何其他内容都*必须*跟随其后！ -->
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <link rel="icon" href="../img/favicon.ico">
+    <title>测试界面</title>
+    <script src="../js/jquery.min.js"></script>
+    <script src="../js/bootstrap.min.js"></script>
+    <link rel="stylesheet" href="../css/bootstrap.min.css">
+    <link rel="stylesheet" href="../css/bootstrap-theme.min.css">
 </head>
 <body>
-	<!-- Fixed navbar -->
-	<nav class="navbar navbar-inverse navbar-fixed-top" style="background: rgb(8, 8, 8);">
-		<div class="container">
-			<div class="navbar-header">
-				<button type="button" class="navbar-toggle collapsed"
-					data-toggle="collapse" data-target="#navbar" aria-expanded="false"
-					aria-controls="navbar">
-					<span class="sr-only">Toggle navigation</span> <span
-						class="icon-bar"></span> <span class="icon-bar"></span> <span
-						class="icon-bar"></span>
-				</button>
-				<a class="navbar-brand" href="../../index.html" style="color: rgb(255, 255, 255);">定制爬虫</a>
-			</div>
-		</div>
-	</nav>
-	<div class="container theme-showcase" role="main">
-		<!-- Main jumbotron for a primary marketing message or call to action -->
-		<div class="jumbotron">
-			<h1>测试解析界面</h1>
-			<p>请参考教程说明，对下表单进行填写，设置爬虫的具体参数后点击开始爬虫。</p>
-		</div>
-		<div class="page-header">
-			<h2>测试参数配置</h2>
-		</div>
-		<div class="row">
-			<div class="col-md-12">
-				<form class="form-horizontal" role="form" id="formTestJobParse">
-					<div class="form-group">
-						<label for="inputForWeburl" class="col-sm-1 control-label">网站地址</label>
-						<div class="col-sm-10">
-							<input formenctype="application/x-www-form-urlencoded"
-								type="text" class="form-control"
-								placeholder="请输入网站的首页地址，例：http://www.baidu.com" name="weburl"
-								id="inputForWeburl">
-						</div>
-					</div>
-					<div class="form-group">
-						<label for="inputForContent" class="col-sm-1 control-label">内容标签</label>
-						<div class="col-sm-10">
-							<input formenctype="application/x-www-form-urlencoded"
-								type="text" class="form-control"
-								placeholder="请输入需爬的内容的关键标签（查看页面源码后进行编写），如：td#myFont p"
-								name="contentKeywords" id="inputForContent">
-						</div>
-					</div>
-				</form>
-			</div>
-		</div>
-		<hr>
-		<div class="page-header">
-			<h2>效果测试</h2>
-		</div>
-		<div class="row">
-			<div class="col-md-12" style="margin-bottom: 20px">
-				<input type="button" value="含标签解析结果"
-					class="btn btn-default col-sm-2" onclick="parseHtml();"/>
-				<div class="col-sm-8"></div>
-				<input type="button" value="纯文本解析结果"
-					class="btn btn-default col-sm-2"  onclick="parseText();"/>
-			</div>
-			<div class="col-md-12">
-				<div class="panel panel-default">
-					<div class="panel-heading">
-						<p id="panelHead"></p>
-					</div>
-					<div class="panel-body">
-						<p id="panelSource"></p>
-					</div>
-					<hr>
-					<div class="panel-heading">
-						<p id="panelHead2"></p>
-					</div>
-					<div class="panel-body">
-						<p id="panelResult"></p>
-					</div>
-				</div>
-			</div>
-		</div>
-		<hr>
-		<footer>
-			<script type="text/javascript" src="../js/footer.js"></script>
-		</footer>
-	</div>
+<!-- Fixed navbar -->
+<nav class="navbar navbar-inverse navbar-fixed-top" style="background: rgb(8, 8, 8);">
+    <div class="container">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle collapsed"
+                    data-toggle="collapse" data-target="#navbar" aria-expanded="false"
+                    aria-controls="navbar">
+                <span class="sr-only">Toggle navigation</span> <span
+                    class="icon-bar"></span> <span class="icon-bar"></span> <span
+                    class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="/" style="color: rgb(255, 255, 255);">定制爬虫</a>
+        </div>
+    </div>
+</nav>
+<div class="container theme-showcase" role="main">
+    <!-- Main jumbotron for a primary marketing message or call to action -->
+    <div class="jumbotron">
+        <h1>测试解析界面</h1>
+        <p>请参考教程说明，对下表单进行填写，设置爬虫的具体参数后点击开始爬虫。</p>
+    </div>
+    <div class="page-header">
+        <h2>测试参数配置</h2>
+    </div>
+    <div class="row">
+        <div class="col-md-12">
+            <form class="form-horizontal" role="form" id="formTestJobParse">
+                <div class="form-group">
+                    <label for="inputForWeburl" class="col-sm-1 control-label">网站地址</label>
+                    <div class="col-sm-10">
+                        <input formenctype="application/x-www-form-urlencoded"
+                               type="text" class="form-control"
+                               placeholder="请输入网站的首页地址，例：http://www.baidu.com" name="weburl"
+                               id="inputForWeburl">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="inputForContent" class="col-sm-1 control-label">内容标签</label>
+                    <div class="col-sm-10">
+                        <input formenctype="application/x-www-form-urlencoded"
+                               type="text" class="form-control"
+                               placeholder="请输入需爬的内容的关键标签（查看页面源码后进行编写），如：td#myFont p"
+                               name="keywords" id="inputForContent">
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+    <hr>
+    <div class="page-header">
+        <h2>效果测试</h2>
+    </div>
+    <div class="row">
+        <div class="col-md-12" style="margin-bottom: 20px">
+            <input type="button" value="含标签解析结果"
+                   class="btn btn-default col-sm-2" onclick="parseHtml();"/>
+            <div class="col-sm-8"></div>
+            <input type="button" value="纯文本解析结果"
+                   class="btn btn-default col-sm-2" onclick="parseText();"/>
+        </div>
+        <br>
+        <div class="col-md-12">
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <p id="panelHead2"></p>
+                </div>
+                <div class="panel-body">
+                    <p id="panelResult"></p>
+                </div>
+                <div class="panel-heading">
+                    <p id="panelHead"></p>
+                </div>
+                <div class="panel-body">
+                    <p id="panelSource"></p>
+                </div>
+            </div>
+        </div>
+    </div>
+    <hr>
+    <footer>
+        <script type="text/javascript" src="../js/footer.js"></script>
+    </footer>
+</div>
 </body>
 <script type="text/javascript">
-	var baseUrl = "http://182.150.37.78:9080/crawl"; 
-	/* var baseUrl = "http://localhost:8080/crawl"; */
-	function parseText() {
-		var AjaxURL = baseUrl + "/testJob/abstract";
-		$.ajax({
-			type : "POST",
-			dataType : "json",
-			url : AjaxURL,
-			data : $('#formTestJobParse').serialize(),
-			success : function(data) {
-				console.log(data);
-				panelHead.innerHTML = "页面源码";
-				panelHead2.innerHTML = "页面解析结果";
-				var panelSource = document.getElementById("panelSource");
-				panelSource.innerHTML = data.html;
-				var panelResult = document.getElementById("panelResult");
-				panelResult.innerHTML = data.parse;
-			},
-			error : function(msg) {
-				var panelSource = document.getElementById("panelSource");
-				panelHead.innerHTML = "ERROR";
-				panelSource.innerHTML = JSON.stringify(msg);
-			}
-		});
-	}
-	function parseHtml() {
-		var AjaxURL = baseUrl + "/testJob/parse";
-		$.ajax({
-			type : "POST",
-			dataType : "json",
-			url : AjaxURL,
-			data : $('#formTestJobParse').serialize(),
-			success : function(data) {
-				console.log(data);
-				panelHead.innerHTML = "页面源码";
-				panelHead2.innerHTML = "页面解析结果";
-				var panelSource = document.getElementById("panelSource");
-				panelSource.innerHTML = data.html;
-				var panelResult = document.getElementById("panelResult");
-				panelResult.innerHTML = data.parse;
-			},
-			error : function(msg) {
-				var panelSource = document.getElementById("panelSource");
-				panelHead.innerHTML = "ERROR";
-				panelSource.innerHTML = JSON.stringify(msg);
-			}
-		});
-	}
+    function parseText() {
+        var AjaxURL =  "/page/text";
+        var formObject = {};
+        var formArray = $("#formTestJobParse").serializeArray();
+        $.each(formArray, function (i, item) {
+            formObject[item.name] = item.value;
+        });
+        $.ajax({
+            type: "POST",
+            dataType: "json",
+            url: AjaxURL,
+            data: JSON.stringify(formObject),
+            contentType: "application/json",
+            success: function (data) {
+                panelHead.innerHTML = "页面源码";
+                panelHead2.innerHTML = "页面解析结果";
+                var panelSource = document.getElementById("panelSource");
+                panelSource.innerText = data.data.original;
+                var panelResult = document.getElementById("panelResult");
+                panelResult.innerText = data.data.parsed;
+            },
+            error: function (msg) {
+                var panelSource = document.getElementById("panelSource");
+                panelHead.innerHTML = "ERROR";
+                panelSource.innerHTML = JSON.stringify(msg);
+            }
+        });
+    }
+    function parseHtml() {
+        var AjaxURL =  "/page/html";
+        var formObject = {};
+        var formArray = $("#formTestJobParse").serializeArray();
+        $.each(formArray, function (i, item) {
+            formObject[item.name] = item.value;
+        });
+        $.ajax({
+            type: "POST",
+            dataType: "json",
+            url: AjaxURL,
+            data: JSON.stringify(formObject),
+            contentType: "application/json",
+            success: function (data) {
+                console.log(data);
+                panelHead.innerHTML = "页面源码";
+                panelHead2.innerHTML = "页面解析结果";
+                var panelSource = document.getElementById("panelSource");
+                panelSource.innerText = data.data.original;
+                var panelResult = document.getElementById("panelResult");
+                panelResult.innerText = data.data.parsed;
+            },
+            error: function (msg) {
+                console.log(msg);
+                var panelSource = document.getElementById("panelSource");
+                panelHead.innerHTML = "ERROR";
+                panelSource.innerHTML = msg;
+            }
+        });
+    }
 </script>
 </html>

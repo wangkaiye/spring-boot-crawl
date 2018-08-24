@@ -5,7 +5,6 @@ import com.htdata.crawl.core.constant.ContentTypeEnum;
 import com.htdata.crawl.core.dao.CrawlInfoDao;
 import com.htdata.crawl.core.dao.ParamInfoDao;
 import com.htdata.crawl.core.entity.CrawlInfoEntity;
-import com.htdata.crawl.core.manager.HttpUtil;
 import com.htdata.crawl.core.manager.JsoupParseManager;
 import com.htdata.crawl.core.manager.UrlContainerManager;
 import com.htdata.crawl.core.task.CrawlTaskService;
@@ -50,12 +49,8 @@ public class SimpleCrawlServiceImpl implements CrawlTaskService {
 
     public void crawl() {
         //参数初始化
-        FastDateFormat actualFastDateFormat = FastDateFormat.getInstance(paramInfoDao.getTimeFormat());
-        String detailedInfoTableName = paramInfoDao.getDetailInfoTableName();
         String baseUrl = paramInfoDao.getWebUrl();
-        String tableName = paramInfoDao.getDetailInfoTableName();
-        //正式爬取之前，首先将历史纪录url放入已经爬取的列表中
-        urlContainerManager.initContainerHashSet("url", tableName);
+        initContainerManager();
         //抓的时候填，填完了新的一轮取出来用，用了就删掉
         List<String> childList = getUrlList(paramInfoDao.getSeedUrlList(), baseUrl);
         log.info("================第一轮种子获取完毕（第一轮获取url不进行判空处理，但子url与后续处理一致）================");
@@ -97,36 +92,16 @@ public class SimpleCrawlServiceImpl implements CrawlTaskService {
                     if (!urlValid(absHref, baseUrl)) {
                         continue;
                     }
+                    //转换中文和\s符号
                     String characterProcessedUrl = getCharacterProcessedUrl(absHref);
                     if (urlContainerManager.urlExists(characterProcessedUrl)) {
                         continue;
                     }
                     childList.add(characterProcessedUrl);
                 }
-                //第二步，数据解析存入数据库
+                //第三步，数据解析存入数据库
                 String html = document.body().toString();
-                String title = jsoupParseManager.getTitleInfo(html, paramInfoDao.getTitleTag(), ContentTypeEnum.TEXT);
-                String time = jsoupParseManager.getTimeInfo(html, paramInfoDao.getTimeTag(), ContentTypeEnum.TEXT,
-                        paramInfoDao.getTimeRegexPattern(), paramInfoDao.getTimeFormat(), actualFastDateFormat);
-                String contentHtml = jsoupParseManager.getContentInfo(html, paramInfoDao.getContentTag(), ContentTypeEnum.HTML);
-                if (!(StringUtils.isBlank(title) || StringUtils.isBlank(time) || StringUtils.isBlank(contentHtml))) {
-                    log.info("start to store ->{}--{}", title, time);
-                    CrawlInfoEntity crawlInfoEntity = new CrawlInfoEntity();
-                    crawlInfoEntity.setUrl(url);
-                    crawlInfoEntity.setBatch_id(Integer.parseInt(System.getProperty(CommonConfig.CRAWL_BATCH_ID_KEY)));
-                    crawlInfoEntity.setGmt_create(new Date());
-                    crawlInfoEntity.setGmt_modified(new Date());
-                    crawlInfoEntity.setCrawled_date(time);
-                    crawlInfoEntity.setCrawled_title(title);
-                    crawlInfoEntity.setCrawled_content_html(contentHtml);
-                    crawlInfoEntity.setArea(paramInfoDao.getAreaId());
-                    crawlInfoEntity.setIs_filtered(0);
-                    crawlInfoEntity.setCategory_id(paramInfoDao.getCategoryId());
-                    crawlInfoEntity.setCategory(paramInfoDao.getCategoryName());
-                    crawlInfoDao.insert(crawlInfoEntity, detailedInfoTableName);
-                } else {
-                    log.info("爬取内容/标题/时间为null ===={}", url);
-                }
+                instoreData(html, url);
             }
             log.info("共处理了{}个网页,下一轮即将被处理的childList包含有效的url总计{}条", count, childList.size());
             if (childList.size() == 0) {
@@ -136,6 +111,42 @@ public class SimpleCrawlServiceImpl implements CrawlTaskService {
 
     }
 
+    private void initContainerManager() {
+        String tableName = paramInfoDao.getDetailInfoTableName();
+        //正式爬取之前，首先将历史纪录url放入已经爬取的列表中
+        urlContainerManager.initContainerHashSet("url", tableName);
+    }
+
+    private void instoreData(String html, String url) {
+        String detailedInfoTableName = paramInfoDao.getDetailInfoTableName();
+        FastDateFormat actualFastDateFormat = FastDateFormat.getInstance(paramInfoDao.getTimeFormat());
+        String title = jsoupParseManager.getTitleInfo(html, paramInfoDao.getTitleTag(), ContentTypeEnum.TEXT);
+        String time = jsoupParseManager.getTimeInfo(html, paramInfoDao.getTimeTag(), ContentTypeEnum.TEXT,
+                paramInfoDao.getTimeRegexPattern(), paramInfoDao.getTimeFormat(), actualFastDateFormat);
+        String contentHtml = jsoupParseManager.getContentInfo(html, paramInfoDao.getContentTag(), ContentTypeEnum.HTML);
+        if (StringUtils.isBlank(title) || StringUtils.isBlank(time) || StringUtils.isBlank(contentHtml)) {
+            log.info("爬取内容/标题/时间为null ===={}", url);
+        } else if (title.length() > 10) {
+            //TODO 此处处理data too long 的异常
+            log.info("title too long ->{}--{}", title, time);
+        } else {
+            log.info("start to store ->{}--{}", title, time);
+            CrawlInfoEntity crawlInfoEntity = new CrawlInfoEntity();
+            crawlInfoEntity.setUrl(url);
+            crawlInfoEntity.setBatch_id(Integer.parseInt(System.getProperty(CommonConfig.CRAWL_BATCH_ID_KEY)));
+            crawlInfoEntity.setGmt_create(new Date());
+            crawlInfoEntity.setGmt_modified(new Date());
+            crawlInfoEntity.setCrawled_date(time);
+            crawlInfoEntity.setCrawled_title(title);
+            crawlInfoEntity.setCrawled_content_html(contentHtml);
+            crawlInfoEntity.setArea(paramInfoDao.getAreaId());
+            crawlInfoEntity.setIs_filtered(0);
+            crawlInfoEntity.setCategory_id(paramInfoDao.getCategoryId());
+            crawlInfoEntity.setCategory(paramInfoDao.getCategoryName());
+            crawlInfoDao.insert(crawlInfoEntity, detailedInfoTableName);
+        }
+    }
+    
     /**
      * 获取种子url抓取的第一批可处理url;
      * 返回为空list

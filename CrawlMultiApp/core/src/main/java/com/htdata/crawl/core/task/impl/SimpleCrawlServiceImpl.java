@@ -12,6 +12,7 @@ import com.htdata.crawl.core.task.CrawlTaskService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.FastDateFormat;
+import org.jsoup.Connection;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -19,6 +20,7 @@ import org.jsoup.select.Elements;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
 import java.net.URLEncoder;
 import java.util.*;
 import java.util.regex.Matcher;
@@ -36,19 +38,15 @@ public class SimpleCrawlServiceImpl implements CrawlTaskService {
     @Autowired
     private JsoupParseManager jsoupParseManager;
     @Autowired
-    private HttpUtil httpUtil;
-    @Autowired
     private CrawlInfoDao crawlInfoDao;
     @Autowired
     private ParamInfoDao paramInfoDao;
 
-    private Set<String> titleAndTimeSet = new HashSet<>();
     private final Pattern patternLow = Pattern.compile(".*\\.(css|js|gif|jpg|png|mp3|mp3|zip|gz|pdf|doc|xls|docx|xlsx|rar|tif)$");
     //对于某些特殊的URL，提取出来会有分行符等，如果不进行转换会影响程序正常执行
     private final Pattern patternSpecialUrl = Pattern.compile("\\s*");
     //匹配所有汉字
     private final Pattern patternCharacter = Pattern.compile("[\u4e00-\u9fa5]");
-    private long count = 0L;
 
     public void crawl() {
         //参数初始化
@@ -59,39 +57,62 @@ public class SimpleCrawlServiceImpl implements CrawlTaskService {
         //正式爬取之前，首先将历史纪录url放入已经爬取的列表中
         urlContainerManager.initContainerHashSet("url", tableName);
         //抓的时候填，填完了新的一轮取出来用，用了就删掉
-        List<String> preparedList = getUrlList(paramInfoDao.getSeedUrlList(), baseUrl);
-        preparedList.addAll(paramInfoDao.getSeedUrlList());
-        while (preparedList.size() > 0) {
+        List<String> childList = getUrlList(paramInfoDao.getSeedUrlList(), baseUrl);
+        log.info("================第一轮种子获取完毕（第一轮获取url不进行判空处理，但子url与后续处理一致）================");
+        while (!childList.isEmpty()) {
             log.info("urlContainerManager.getHashSet().size()===>" + urlContainerManager.getHashSet().size());
-            int round = 1;
-            for (String seedUrl : preparedList) {
-                // 将seedUrl地址放入hashSet中，表示它已经被处理过
-                if (!urlContainerManager.urlExists(seedUrl)) {
-                    urlContainerManager.storeUrlToSet(seedUrl);
-                } else {
-                    //如果存在，即被处理过，跳过这次处理
-                    log.info("url({})已存在", seedUrl);
+            //查看url是否重复，重复则不处理，不重复的放入待处理List中
+            //在处理不重复的url之前，先将url全部放入urlContainerManager中
+            List<String> preparedList = new ArrayList<>();
+            for (int i = 0; i < childList.size(); i++) {
+                String url = childList.get(i);
+                if (!urlContainerManager.urlExists(url)) {
+                    preparedList.add(url);
+                    urlContainerManager.storeUrlToSet(url);
+                }
+            }
+            //处理url，获取doc，获取需要存储的内容，也获取下一轮需要处理的子url
+            int count = 0;
+            for (int i = 0; i < preparedList.size(); i++) {
+                //第一步，获取url页面内容
+                String url = preparedList.get(i);
+                Document document;
+                Connection connection = Jsoup.connect(url);
+                try {
+                    document = connection.get();
+                } catch (IOException e) {
+                    log.error("url（{}）在抓取时发生异常：{}", url, e.getMessage());
+                    //如果本次的url未获取成功就放弃本次任务
                     continue;
                 }
-                // 处理种子url中的信息
                 count++;
-                try {
-                    String html = httpUtil.httpGet(seedUrl);
-                    String title = jsoupParseManager.getTitleInfo(html, paramInfoDao.getTitleTag(), ContentTypeEnum.TEXT);
-                    String time = jsoupParseManager.getTimeInfo(html, paramInfoDao.getTimeTag(), ContentTypeEnum.TEXT,
-                            paramInfoDao.getTimeRegexPattern(), paramInfoDao.getTimeFormat(), actualFastDateFormat);
-                    String contentHtml = jsoupParseManager.getContentInfo(html, paramInfoDao.getContentTag(), ContentTypeEnum.HTML);
-                    if (StringUtils.isBlank(title) || StringUtils.isBlank(time) || StringUtils.isBlank(contentHtml)) {
-                        log.info("爬取内容/标题/时间为null ===={}", seedUrl);
+                //第二步，分析link，去除重复内容，装入子childList中
+                //先将之前childList中内容清空
+                childList.clear();
+                Elements link = document.select("a");
+                for (Element element : link) {
+                    //获取页面的url
+                    String absHref = element.attr("abs:href");
+                    //判定url合理性
+                    if (!urlValid(absHref, baseUrl)) {
                         continue;
                     }
-                    if (titleAndTimeSet.contains(title + "_" + time)) {
-                        log.info("标题和时间==（{}）_（{}）重复", title, time);
+                    String characterProcessedUrl = getCharacterProcessedUrl(absHref);
+                    if (urlContainerManager.urlExists(characterProcessedUrl)) {
                         continue;
                     }
-                    titleAndTimeSet.add(title + "_" + time);
+                    childList.add(characterProcessedUrl);
+                }
+                //第二步，数据解析存入数据库
+                String html = document.body().toString();
+                String title = jsoupParseManager.getTitleInfo(html, paramInfoDao.getTitleTag(), ContentTypeEnum.TEXT);
+                String time = jsoupParseManager.getTimeInfo(html, paramInfoDao.getTimeTag(), ContentTypeEnum.TEXT,
+                        paramInfoDao.getTimeRegexPattern(), paramInfoDao.getTimeFormat(), actualFastDateFormat);
+                String contentHtml = jsoupParseManager.getContentInfo(html, paramInfoDao.getContentTag(), ContentTypeEnum.HTML);
+                if (!(StringUtils.isBlank(title) || StringUtils.isBlank(time) || StringUtils.isBlank(contentHtml))) {
+                    log.info("start to store ->{}--{}", title, time);
                     CrawlInfoEntity crawlInfoEntity = new CrawlInfoEntity();
-                    crawlInfoEntity.setUrl(seedUrl);
+                    crawlInfoEntity.setUrl(url);
                     crawlInfoEntity.setBatch_id(Integer.parseInt(System.getProperty(CommonConfig.CRAWL_BATCH_ID_KEY)));
                     crawlInfoEntity.setGmt_create(new Date());
                     crawlInfoEntity.setGmt_modified(new Date());
@@ -103,37 +124,21 @@ public class SimpleCrawlServiceImpl implements CrawlTaskService {
                     crawlInfoEntity.setCategory_id(paramInfoDao.getCategoryId());
                     crawlInfoEntity.setCategory(paramInfoDao.getCategoryName());
                     crawlInfoDao.insert(crawlInfoEntity, detailedInfoTableName);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                    log.info("插入数据库失败", e);
-                    continue;
+                } else {
+                    log.info("爬取内容/标题/时间为null ===={}", url);
                 }
             }
-            //根据上一轮的所得到的所有url，进行下一轮的url获取
-            preparedList.addAll(getUrlList(preparedList, baseUrl));
-            //使用getUrlList(List<String> seedUrlList, String baseUrl)后，会将上一轮遍历过的地址存入其中
-            removeDuplicatedUrl(preparedList);
-            log.info("=====第{}轮结束，此时种子preparedList中还有{}个url=====", round, preparedList.size());
-            round++;
-        }
-        log.info("共处理了{}个网页", count);
-    }
-
-    private void removeDuplicatedUrl(List<String> list) {
-        if (list.isEmpty()) {
-            return;
-        }
-        Iterator<String> iterator = list.iterator();
-        while (iterator.hasNext()) {
-            String url = iterator.next();
-            if (this.urlContainerManager.urlExists(url)) {
-                iterator.remove();
+            log.info("共处理了{}个网页,下一轮即将被处理的childList包含有效的url总计{}条", count, childList.size());
+            if (childList.size() == 0) {
+                log.info("childList.size()==0,本次爬取任务即将结束！");
             }
         }
+
     }
 
     /**
-     * 获取页面所有的合理的绝对url，并进行预处理
+     * 获取种子url抓取的第一批可处理url;
+     * 返回为空list
      *
      * @param seedUrlList
      * @param baseUrl
@@ -143,18 +148,16 @@ public class SimpleCrawlServiceImpl implements CrawlTaskService {
         if (seedUrlList == null || seedUrlList.isEmpty()) {
             return new ArrayList<>();
         }
-        List<String> list = new ArrayList<>();
-        log.info("开始进行种子url抓取:{}", System.currentTimeMillis());
-//        final CountDownLatch countDownLatch = new CountDownLatch(seedUrlList.size());
-//        ExecutorService esThreadPool = Executors.newFixedThreadPool(seedUrlList.size() < 50 ? seedUrlList.size() : 50);
+        List<String> childList = new ArrayList<>();
+        log.info("---------开始进行种子url抓取，本轮共{}个种子url-------------", seedUrlList.size());
         for (String seedUrl : seedUrlList) {
-//            esThreadPool.execute(new Runnable() {
-//                @Override
-//                public void run() {
             //抓取页面
-            Document doc = null;
+            Document doc;
             try {
+                long start = System.currentTimeMillis();
                 doc = Jsoup.connect(seedUrl).get();
+                log.info("获取种子url：{}所花费的时间为{}ms", seedUrl, System.currentTimeMillis() - start);
+                long internalStart = System.currentTimeMillis();
                 //获取所有为a下的链接
                 Elements link = doc.select("a");
                 for (Element element : link) {
@@ -162,28 +165,16 @@ public class SimpleCrawlServiceImpl implements CrawlTaskService {
                     String absHref = element.attr("abs:href");
                     //判定url合理性
                     if (urlValid(absHref, baseUrl)) {
-//                                synchronized (this) {
-                        list.add(getProcessedUrl(absHref));
-//                                }
+                        childList.add(getCharacterProcessedUrl(absHref));
                     }
                 }
+                log.info("link分析时长:{}ms", System.currentTimeMillis() - internalStart);
             } catch (Exception e) {
                 log.error("种子url（{}）在抓取时发生异常：{}", seedUrl, e.getMessage());
             }
-//                    finally {
-//                        System.out.println("countDownLatch.countDown()");
-//                        countDownLatch.countDown();
-//                    }
         }
-//            });
-//        }
-//        try {
-//            countDownLatch.await(2, TimeUnit.MINUTES);
-//        } catch (InterruptedException e) {
-//            e.printStackTrace();
-//        }
         log.info("结束本轮种子url抓取:{}", System.currentTimeMillis());
-        return list;
+        return childList;
     }
 
     /**
@@ -216,7 +207,7 @@ public class SimpleCrawlServiceImpl implements CrawlTaskService {
      * @param originalUrl
      * @return
      */
-    private String getProcessedUrl(String originalUrl) {
+    private String getCharacterProcessedUrl(String originalUrl) {
         String processedUrl = null;
         if (originalUrl == null) {
             return processedUrl;

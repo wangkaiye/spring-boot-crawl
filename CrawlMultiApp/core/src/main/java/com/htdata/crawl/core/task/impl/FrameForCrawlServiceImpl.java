@@ -19,8 +19,8 @@ import org.springframework.stereotype.Service;
 import java.sql.SQLException;
 
 @Slf4j
-@ConditionalOnProperty(name = CommonConfig.CRAWL_SERVICE_KEY, havingValue = CommonConfig.CRAWL_SERVICE_WITH_FRAMEWORK)
-@Service
+//@ConditionalOnProperty(name = CommonConfig.CRAWL_SERVICE_KEY, havingValue = CommonConfig.CRAWL_SERVICE_WITH_FRAMEWORK)
+@Service(CommonConfig.CRAWL_SERVICE_WITH_FRAMEWORK)
 public class FrameForCrawlServiceImpl implements CrawlTaskService {
     @Autowired
     private ParamInfoDao paramInfoDao;
@@ -33,7 +33,6 @@ public class FrameForCrawlServiceImpl implements CrawlTaskService {
 
     @Override
     public void crawl() {
-        paramInfoDao.init(System.getProperty(CommonConfig.CRAWL_BATCH_ID_KEY));
         CrawlConfig crawlConfig = new CrawlConfig(); // 定义爬虫配置
         crawlConfig.setCrawlStorageFolder(paramInfoDao.getCrawlStorePrefix()+ paramInfoDao.getSiteDescription());
         // 设置爬虫文件存储位置
@@ -56,21 +55,7 @@ public class FrameForCrawlServiceImpl implements CrawlTaskService {
             controller.addSeed(string);
         }
         String tableName = paramInfoDao.getDetailInfoTableName();
-        String createTableSQL = paramInfoDao.getTableSQLbyTableName(tableName);
-        String filterTableName = paramInfoDao.getFilteredInfoTableName();
-        String filterTableSQL = paramInfoDao.getTableSQLbyTableName(filterTableName);
-        try {
-            //如果表不存在，则会创建
-            crawlInfoDao.createTable(tableName,createTableSQL);
-//            crawlInfoDao.createTable(filterTableName,filterTableSQL);
-        } catch (SQLException e) {
-            e.printStackTrace();
-            return;
-        }
         urlContainerManager.initContainerHashSet("url",tableName);
-        //加入表名，后续进行内容过滤时需要用到
-        CoreApplication.tableNameMap.put("detail",tableName);
-//        CoreApplication.tableNameMap.put("filter",filterTableName);
         /**
          * 启动爬虫，爬虫从此刻开始执行爬虫任务，根据以上配置
          */

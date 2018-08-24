@@ -1,12 +1,11 @@
-#dubbo配置
 spring:
   datasource:
     name: cncDataSource
     type: com.alibaba.druid.pool.DruidDataSource
     driverClassName: com.mysql.jdbc.Driver
-    url: jdbc:mysql://192.168.0.28:3909/autoenergy?useUnicode=true&characterEncoding=utf8
+    url: jdbc:mysql://192.168.0.36:28971/crawl?useUnicode=true&characterEncoding=utf8&zeroDateTimeBehavior=convertToNull&useSSL=false&rewriteBatchedStatements=true&autoReconnect=true
     username: root
-    password: htdata1234@CD2
+    password: htdata1234@CD2~~!@#$
     # 初始化大小，最小，最大
     initialSize: 1
     minIdle: 3

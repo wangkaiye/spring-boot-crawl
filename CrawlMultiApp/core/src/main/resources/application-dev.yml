@@ -1,4 +1,3 @@
-#dubbo配置
 spring:
   datasource:
     name: cncDataSource

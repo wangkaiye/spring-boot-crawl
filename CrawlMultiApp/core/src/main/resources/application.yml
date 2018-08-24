@@ -1,6 +1,6 @@
+#通用配置
 spring:
   profiles:
-    active: dev
-
+    active: pro
 logging:
-  path: /logs
+  file: /java-program/crawl-core/logs/log.log

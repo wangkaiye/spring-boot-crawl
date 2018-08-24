@@ -2,6 +2,7 @@ package com.htdata.crawl.core.manager;
 
 import com.htdata.crawl.core.constant.CommonConfig;
 import com.htdata.crawl.core.constant.ContentTypeEnum;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.FastDateFormat;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -152,7 +153,7 @@ public class JsoupParseManager {
      * @return
      */
     public String getContentInfo(String html, String htmlTag, ContentTypeEnum contentTypeEnum) {
-        if (htmlTag == null) {
+        if (StringUtils.isBlank(htmlTag)) {
             return null;
         }
         String res;
@@ -171,7 +172,7 @@ public class JsoupParseManager {
             Document contentDoc = Jsoup.parse(html);
             Elements contentElements = contentDoc.select(htmlTag);
             String content = contentElements.text();
-            if (content == null) {
+            if (StringUtils.isBlank(content)) {
                 return null;
             }
             res = content.trim();

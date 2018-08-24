@@ -1,6 +1,5 @@
 package com.htdata.crawl.core.task.impl;
 
-import com.htdata.crawl.core.CoreApplication;
 import com.htdata.crawl.core.constant.CommonConfig;
 import com.htdata.crawl.core.constant.ContentTypeEnum;
 import com.htdata.crawl.core.dao.CrawlInfoDao;
@@ -18,17 +17,10 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Service;
 
-import java.io.IOException;
 import java.net.URLEncoder;
-import java.sql.SQLException;
 import java.util.*;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -36,8 +28,8 @@ import java.util.regex.Pattern;
  * 手写爬虫内部管理，在研究透彻crawl4j之前用于补充crawl4j用于爬取可能的设置错误而不能爬取的网站
  */
 @Slf4j
-@ConditionalOnProperty(name = CommonConfig.CRAWL_SERVICE_KEY, havingValue = CommonConfig.CRAWL_SERVICE_WITH_SIMPLECRAWL)
-@Service
+//@ConditionalOnProperty(name = CommonConfig.CRAWL_SERVICE_KEY, havingValue = CommonConfig.CRAWL_SERVICE_WITH_SIMPLECRAWL)
+@Service(CommonConfig.CRAWL_SERVICE_WITH_SIMPLECRAWL)
 public class SimpleCrawlServiceImpl implements CrawlTaskService {
     @Autowired
     private UrlContainerManager urlContainerManager;
@@ -53,35 +45,19 @@ public class SimpleCrawlServiceImpl implements CrawlTaskService {
     private Set<String> titleAndTimeSet = new HashSet<>();
     private final Pattern patternLow = Pattern.compile(".*\\.(css|js|gif|jpg|png|mp3|mp3|zip|gz|pdf|doc|xls|docx|xlsx|rar|tif)$");
     //对于某些特殊的URL，提取出来会有分行符等，如果不进行转换会影响程序正常执行
-    private final Pattern patternSpecialUrl = Pattern.compile("\\s*|\t|\r|\n");
+    private final Pattern patternSpecialUrl = Pattern.compile("\\s*");
     //匹配所有汉字
     private final Pattern patternCharacter = Pattern.compile("[\u4e00-\u9fa5]");
     private long count = 0L;
 
     public void crawl() {
         //参数初始化
-        paramInfoDao.init(System.getProperty(CommonConfig.CRAWL_BATCH_ID_KEY));
         FastDateFormat actualFastDateFormat = FastDateFormat.getInstance(paramInfoDao.getTimeFormat());
         String detailedInfoTableName = paramInfoDao.getDetailInfoTableName();
         String baseUrl = paramInfoDao.getWebUrl();
         String tableName = paramInfoDao.getDetailInfoTableName();
-        String createTableSQL = paramInfoDao.getTableSQLbyTableName(tableName);
-        String filterTableName = paramInfoDao.getFilteredInfoTableName();
-        String filterTableSQL = paramInfoDao.getTableSQLbyTableName(filterTableName);
-        try {
-            //如果表不存在，则会创建
-            crawlInfoDao.createTable(tableName, createTableSQL);
-//            crawlInfoDao.createTable(filterTableName, filterTableSQL);
-        } catch (SQLException e) {
-            e.printStackTrace();
-            return;
-        }
         //正式爬取之前，首先将历史纪录url放入已经爬取的列表中
         urlContainerManager.initContainerHashSet("url", tableName);
-        //加入表名，后续进行内容过滤时需要用到
-        CoreApplication.tableNameMap.put("detail", tableName);
-//        CoreApplication.tableNameMap.put("filter", filterTableName);
-
         //抓的时候填，填完了新的一轮取出来用，用了就删掉
         List<String> preparedList = getUrlList(paramInfoDao.getSeedUrlList(), baseUrl);
         preparedList.addAll(paramInfoDao.getSeedUrlList());
@@ -169,42 +145,43 @@ public class SimpleCrawlServiceImpl implements CrawlTaskService {
         }
         List<String> list = new ArrayList<>();
         log.info("开始进行种子url抓取:{}", System.currentTimeMillis());
-        final CountDownLatch countDownLatch = new CountDownLatch(seedUrlList.size());
-        ExecutorService esThreadPool = Executors.newFixedThreadPool(seedUrlList.size() < 50 ? seedUrlList.size() : 50);
+//        final CountDownLatch countDownLatch = new CountDownLatch(seedUrlList.size());
+//        ExecutorService esThreadPool = Executors.newFixedThreadPool(seedUrlList.size() < 50 ? seedUrlList.size() : 50);
         for (String seedUrl : seedUrlList) {
-            esThreadPool.execute(new Runnable() {
-                @Override
-                public void run() {
-                    //抓取页面
-                    Document doc = null;
-                    try {
-                        doc = Jsoup.connect(seedUrl).get();
-                        //获取所有为a下的链接
-                        Elements link = doc.select("a");
-                        for (Element element : link) {
-                            //获取页面的url
-                            String absHref = element.attr("abs:href");
-                            //判定url合理性
-                            if (urlValid(absHref, baseUrl)) {
-                                synchronized (this) {
-                                    list.add(getProcessedUrl(absHref));
-                                }
-                            }
-                        }
-                    } catch (Exception e) {
-                        log.error("种子url（{}）在抓取时发生异常：{}", seedUrl, e.getMessage());
-                    } finally {
-                        System.out.println("countDownLatch.countDown()");
-                        countDownLatch.countDown();
+//            esThreadPool.execute(new Runnable() {
+//                @Override
+//                public void run() {
+            //抓取页面
+            Document doc = null;
+            try {
+                doc = Jsoup.connect(seedUrl).get();
+                //获取所有为a下的链接
+                Elements link = doc.select("a");
+                for (Element element : link) {
+                    //获取页面的url
+                    String absHref = element.attr("abs:href");
+                    //判定url合理性
+                    if (urlValid(absHref, baseUrl)) {
+//                                synchronized (this) {
+                        list.add(getProcessedUrl(absHref));
+//                                }
                     }
                 }
-            });
+            } catch (Exception e) {
+                log.error("种子url（{}）在抓取时发生异常：{}", seedUrl, e.getMessage());
+            }
+//                    finally {
+//                        System.out.println("countDownLatch.countDown()");
+//                        countDownLatch.countDown();
+//                    }
         }
-        try {
-            countDownLatch.await(2, TimeUnit.MINUTES);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
+//            });
+//        }
+//        try {
+//            countDownLatch.await(2, TimeUnit.MINUTES);
+//        } catch (InterruptedException e) {
+//            e.printStackTrace();
+//        }
         log.info("结束本轮种子url抓取:{}", System.currentTimeMillis());
         return list;
     }

@@ -152,6 +152,8 @@ public class TableProcessServiceImpl implements TableProcessService {
      * @param convergeTableName
      */
     public void filteredTableInfoTransferedIntoConverge(String filteredTableName, String convergeTableName) {
+        long countCoverge = 0L;
+
         //原表中取出1000条数据（is_filtered），转移，更新
         List<Map<String, Object>> filterMessageList = jdbcTemplate.queryForList("select * from " + filteredTableName + " where is_filtered=0 limit 1000");
         if (filterMessageList.isEmpty()) {
@@ -176,6 +178,7 @@ public class TableProcessServiceImpl implements TableProcessService {
                 titleAndTimeSet.add(title + time);
                 if (time.startsWith(timePrefix)) {
                     convergeList.add(stringObjectMap);
+                    countCoverge++;
                 }
             }
             if (!updateList.isEmpty()) {
@@ -187,6 +190,6 @@ public class TableProcessServiceImpl implements TableProcessService {
             //转移完毕后继续获取下一批1000个数据
             filterMessageList = jdbcTemplate.queryForList("select * from " + filteredTableName + " where is_filtered=0 limit 1000");
         }
-        log.info("聚合完毕！");
+        log.info("聚合完毕，该filter表共向聚合表中转移{}条数据。", countCoverge);
     }
 }

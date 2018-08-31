@@ -22,7 +22,7 @@ public class JsoupPaserServiceImpl implements PageContentParseService {
     @Autowired
     private HttpUtil httpUtil;
 
-    private static final Pattern PATTERN = Pattern.compile("https?://[\\w./]+");
+    private static final Pattern PATTERN = Pattern.compile("https?://[\\w./\\?\\=\\&]+");
 
     @Override
     public BaseResponse getParseInfo(PageParseEntity pageParseEntity, ContentTypeEnum contentType) {

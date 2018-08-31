@@ -32,7 +32,7 @@ public class CrawlInfoDao {
                     crawlInfoEntity.getUrl(), crawlInfoEntity.getCategory_id(), crawlInfoEntity.getCategory(), crawlInfoEntity.getCrawled_title(), crawlInfoEntity.getCrawled_date(),
                     crawlInfoEntity.getCrawled_content_html(), crawlInfoEntity.getArea(), crawlInfoEntity.getIs_filtered(), crawlInfoEntity.getGmt_create(), crawlInfoEntity.getGmt_modified());
         } catch (Exception e) {
-            log.error("CrawlInfoDao.insert crawledData exception:{}!", e.getMessage());
+            log.error("url={},CrawlInfoDao.insert crawledData exception:{}!", crawlInfoEntity.getUrl(), e.getMessage());
         }
         return true;
     }

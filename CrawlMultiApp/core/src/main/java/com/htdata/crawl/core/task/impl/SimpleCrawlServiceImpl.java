@@ -53,7 +53,7 @@ public class SimpleCrawlServiceImpl implements CrawlTaskService {
         initContainerManager();
         //抓的时候填，填完了新的一轮取出来用，用了就删掉
         List<String> childList = getUrlList(paramInfoDao.getSeedUrlList(), baseUrl);
-        log.info("================第一轮种子获取完毕（第一轮获取url不进行判空处理，但子url与后续处理一致）================");
+        log.info("================第一轮种子获取完毕({})（第一轮获取url不进行判空处理，但子url与后续处理一致）================", childList);
         while (!childList.isEmpty()) {
             log.info("urlContainerManager.getHashSet().size()===>" + urlContainerManager.getHashSet().size());
             //查看url是否重复，重复则不处理，不重复的放入待处理List中
@@ -106,6 +106,8 @@ public class SimpleCrawlServiceImpl implements CrawlTaskService {
             log.info("共处理了{}个网页,下一轮即将被处理的childList包含有效的url总计{}条", count, childList.size());
             if (childList.size() == 0) {
                 log.info("childList.size()==0,本次爬取任务即将结束！");
+            } else if (childList.size() == 1) {
+                log.info("childList.size()==1的情况，查看url={}", childList.get(0));
             }
         }
 
@@ -125,12 +127,11 @@ public class SimpleCrawlServiceImpl implements CrawlTaskService {
                 paramInfoDao.getTimeRegexPattern(), paramInfoDao.getTimeFormat(), actualFastDateFormat);
         String contentHtml = jsoupParseManager.getContentInfo(html, paramInfoDao.getContentTag(), ContentTypeEnum.HTML);
         if (StringUtils.isBlank(title) || StringUtils.isBlank(time) || StringUtils.isBlank(contentHtml)) {
-            log.info("爬取内容/标题/时间为null ===={}", url);
-        } else if (title.length() > 10) {
-            //TODO 此处处理data too long 的异常
-            log.info("title too long ->{}--{}", title, time);
+            log.info("爬取内容/标题/时间为null --{}", url);
+        } else if (title.length() > 200 || contentHtml.getBytes().length > 65535) {
+            log.info("title or content too long ->{}--{}--{}", title, time, url);
         } else {
-            log.info("start to store ->{}--{}", title, time);
+            log.info("start to store ->{}--{}--{}", title, time, url);
             CrawlInfoEntity crawlInfoEntity = new CrawlInfoEntity();
             crawlInfoEntity.setUrl(url);
             crawlInfoEntity.setBatch_id(Integer.parseInt(System.getProperty(CommonConfig.CRAWL_BATCH_ID_KEY)));
@@ -146,7 +147,7 @@ public class SimpleCrawlServiceImpl implements CrawlTaskService {
             crawlInfoDao.insert(crawlInfoEntity, detailedInfoTableName);
         }
     }
-    
+
     /**
      * 获取种子url抓取的第一批可处理url;
      * 返回为空list

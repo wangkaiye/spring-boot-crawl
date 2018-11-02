@@ -4,14 +4,12 @@ import com.htdata.crawl.core.CoreApplicationTests;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import static org.junit.Assert.*;
-
-public class TimeFormatDaoTest extends CoreApplicationTests {
+public class TimeInfoDaoTest extends CoreApplicationTests {
 @Autowired
-    private TimeFormatDao timeFormatDao;
+    private TimeInfoDao timeInfoDao;
 
     @Test
     public void getTimeFormat() {
-        System.out.println(timeFormatDao.getTimeFormat());
+        System.out.println(timeInfoDao.getTimeFormat());
     }
 }

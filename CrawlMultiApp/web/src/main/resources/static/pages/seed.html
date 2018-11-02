@@ -26,7 +26,7 @@
 						class="icon-bar"></span> <span class="icon-bar"></span> <span
 						class="icon-bar"></span>
 				</button>
-				<a class="navbar-brand" href="../../index.html" style="color: rgb(255, 255, 255);">定制爬虫</a>
+				<a class="navbar-brand" href="/" style="color: rgb(255, 255, 255);">定制爬虫</a>
 			</div>
 		</div>
 	</nav>
@@ -138,12 +138,10 @@
 	<!-- /container -->
 </body>
 <script type="text/javascript">
-	var baseUrl = "http://182.150.37.78:9080/crawl";
-	/* var baseUrl = "http://localhost:8080/crawl"; */
 	$(function() {
 		// 加载下拉菜单
 		$.ajax({
-			url : baseUrl + "/startJob/category",
+			url : "/fixed/info/category",
 			type : 'GET',
 			dataType : "json",
 			success : function(data) {
@@ -160,7 +158,7 @@
 	$(function() {
 		// 加载下拉菜单
 		$.ajax({
-			url : baseUrl + "/startJob/time",
+			url :  "/fixed/info/time",
 			type : 'GET',
 			dataType : "json",
 			success : function(data) {
@@ -168,28 +166,34 @@
 				for ( var i in data) {
 					console.log(i)
 					sel += '<option value="'+i+'">' + data[i].time_format
-							+ "（如：" + data[i].time_example + '）</option>';
+							+  '</option>';
 				}
 				$("#inputForTimeFormat").html(sel);
 			}
 		});
 	});
 	function excuteShell() {
-		var AjaxURL = baseUrl + "/startJob/info";
+		var AjaxURL =  "/execute/info";
+        var formObject = {};
+        var formArray =$("#formStartJobInfo").serializeArray();
+        $.each(formArray,function(i,item){
+            formObject[item.name] = item.value;
+        });
 		$.ajax({
 			type : "POST",
 			dataType : "json",
 			url : AjaxURL,
-			data : $('#formStartJobInfo').serialize(),
+			data : JSON.stringify(formObject),
+            contentType: "application/json",
 			success : function(data) {
 				var panelBody = document.getElementById("panelBody");
-				panelHead.innerHTML = "后台执行结果";
-				panelBody.innerHTML = JSON.stringify(data);
+				panelHead.innerHTML = "提示：";
+				panelBody.innerHTML = data.msg;
 			},
 			error : function(msg) {
 				var panelBody = document.getElementById("panelBody");
 				panelHead.innerHTML = "ERROR";
-				panelBody.innerHTML = JSON.stringify(msg);
+				panelBody.innerHTML = msg;
 			}
 		});
 	}

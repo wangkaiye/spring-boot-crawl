@@ -8,19 +8,18 @@ import java.util.List;
 import java.util.Map;
 
 @Repository
-public class TimeFormatDao {
+public class SiteCategoryInfoDao {
     @Autowired
     private JdbcTemplate jdbcTemplate;
 
     private long miliseconds;
-    private List<Map<String, Object>> timeInfoList;
+    private List<Map<String, Object>> categoryInfoList;
 
-    public List<Map<String, Object>> getTimeFormat() {
+    public List<Map<String, Object>> getCategoryInfo() {
         if (miliseconds == 0L || System.currentTimeMillis() - miliseconds > 3600000L) {
             miliseconds = System.currentTimeMillis();
-            timeInfoList = jdbcTemplate.queryForList("select * from time_info");
+            categoryInfoList = jdbcTemplate.queryForList("select * from site_category_info");
         }
-        return timeInfoList;
+        return categoryInfoList;
     }
-
 }

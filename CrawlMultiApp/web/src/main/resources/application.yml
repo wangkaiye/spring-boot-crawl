@@ -1,12 +1,13 @@
-##thymeleaf页面模板配置
+#web配置
+server:
+  port: 7091
 spring:
  mvc:
   view:
    prefix: /
    suffix: .html
+ #通用配置
  profiles:
-   active: dev
-server:
-  port: 8080
+   active: pro
 logging:
-  path: /logs
+  file: /java-program/crawl-web/logs/log.log

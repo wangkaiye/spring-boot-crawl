@@ -6,7 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 public class CategoryInfoDaoTest extends CoreApplicationTests {
     @Autowired
-    private CategoryInfoDao categoryInfoDao;
+    private SiteCategoryInfoDao categoryInfoDao;
 
     @Test
     public void getCategoryInfo() {

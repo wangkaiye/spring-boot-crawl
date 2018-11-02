@@ -19,22 +19,20 @@ public class PageContentParseController {
     private PageContentParseService pageContentParseService;
 
     /**
-     *
      * @param pageParseEntity
      * @return
      */
     @RequestMapping(value = "/text", method = RequestMethod.POST)
     public Object getTextInfo(@RequestBody PageParseEntity pageParseEntity) {
-        return pageContentParseService.getParseInfo(pageParseEntity,ContentTypeEnum.TEXT);
+        return pageContentParseService.getParseInfo(pageParseEntity, ContentTypeEnum.TEXT);
     }
 
     /**
-     *
      * @param pageParseEntity
      * @return
      */
     @RequestMapping(value = "/html", method = RequestMethod.POST)
     public Object getHtmlInfo(@RequestBody PageParseEntity pageParseEntity) {
-        return pageContentParseService.getParseInfo(pageParseEntity,ContentTypeEnum.HTML);
+        return pageContentParseService.getParseInfo(pageParseEntity, ContentTypeEnum.HTML);
     }
 }

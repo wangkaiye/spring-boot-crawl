@@ -1,130 +1,119 @@
 package com.htdata.crawl.core;
 
+import com.htdata.crawl.core.constant.CommonConfig;
+import com.htdata.crawl.core.dao.CrawlInfoDao;
+import com.htdata.crawl.core.dao.ParamInfoDao;
 import com.htdata.crawl.core.task.CrawlTaskService;
+import com.htdata.crawl.core.task.TableProcessService;
+import com.htdata.crawl.core.task.impl.TableProcessServiceImpl;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.xmlbeans.impl.tool.Extension;
+import org.joda.time.DateTime;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.ConfigurableApplicationContext;
 
+import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @Slf4j
 @SpringBootApplication
 public class CoreApplication {
-
     // 默认线程数为5，深度为-1（即不限制）
     public static final int CRAWL_THREAD_NUMBER = 5;
-    public static Map<String, String> config = new HashMap<>();
+    //爬虫初始化时需要将数据库表名加入，后续的数据库清理任务从其中拿到表名
+    public static final Map<String, String> tableNameMap = new HashMap<>();
     public static ConfigurableApplicationContext configurableApplicationContext;
 
-
-    public static void main(String[] args){
-		System.out.println(args[0]);
-    	System.setProperty("crawlId",args[0]);
-		configurableApplicationContext = SpringApplication.run(CoreApplication.class, args);
-		configurableApplicationContext.getBean(CrawlTaskService.class).crawl();
-		System.out.println("--------crawl job finished--------");
-
-		/**
-         * 处理参数
-         */
-        // args的参数检验在controller层中进行，此处需要什么参数就在controller层中添加对应规则
-        // 或者提供文本样例，按照样例所示进行内容修改
-		/**
-		 * 当前需要的参数：<br>
-		 * 1.网站url（此url为过滤依据，过滤掉不是以此url开头的资源）--weburl<br>
-		 * 2.种子url，可配置多个，用空格分开--seedurl<br>
-		 * 3.爬取标题的网页关键词--titleKeywords<br>
-		 * 4.爬取时间的网页关键词--timeKeywords<br>
-		 * 5.爬取时间的正则表达式--timeRegix<br>
-		 * 6.爬取内容的网页关键词--contentKeywords<br>
-		 * 7.爬取内容存储的位置--crawlStore<br>
-		 * 8.用于描述网站的概述--websiteInfo<br>
-		 * 9.登陆用户--user
-		 */
-
-//		for (int i = 0; i < args.length; i++) {
-//			int splitCodeAt = args[i].indexOf(CommonConfig.SPLIT_CHAR);
-//			String key = args[i].substring(0, splitCodeAt);
-//			String value = args[i].substring(splitCodeAt + CommonConfig.SPLIT_CHAR.length());
-//			if (key.equals(CommonConfig.SEED_URL)) {
-//				config.put(key, value);
-//			} else {
-//				config.put(key, StringUtils.replace(value, CommonConfig.SPACE_CHAR_REPLACE, " "));
-//			}
-//		}
-//		log.info("网站url:" + config.get(CommonConfig.WEB_URL));
-//		log.info("titleKeywords:" + config.get(CommonConfig.TITLE_KEY_WORDS));
-//		log.info("timeKeywords:" + config.get(CommonConfig.TIME_KEY_WORDS));
-//		log.info("timeRegix:" + config.get(CommonConfig.TIME_REGIX));
-//		log.info("contentKeywords:" + config.get(CommonConfig.CONTENT_KEY_WORDS));
-//		log.info("爬取内容存储位置:" + config.get(CommonConfig.CRAWL_STORE));
-//		log.info("网站描述:" + config.get(CommonConfig.WEBSITE_INFO));
-//		log.info("消息类型:" + config.get(CommonConfig.CATEGORY_KEY_WORDS));
-//		log.info("消息类型ID:" + config.get(CommonConfig.CATEGORY_ID_KEY_WORDS));
-//		log.info("时间格式:" + config.get(CommonConfig.TIME_FORMAT_KEY_WORDS));
-//		String allSeedUrls = config.get(CommonConfig.SEED_URL);
-//		String[] seeds = allSeedUrls.split(CommonConfig.SPACE_CHAR_REPLACE);
-//		for (int i = 0; i < seeds.length; i++) {
-//			log.info("种子url地址" + i + ":" + seeds[i]);
-//		}
-        /**
-         * crawl4j.download
-         */
-        // CrawlConfig crawlConfig = new CrawlConfig(); // 定义爬虫配置
-        // crawlConfig.setCrawlStorageFolder(config.get(CommonConfig.CRAWL_STORE));
-        // // 设置爬虫文件存储位置
-        // crawlConfig.setUserAgentString(
-        // "Mozilla/5.0 (Windows NT 6.3; Win64; x64)
-        // AppleWebKit/537.36(KHTML,like Gecko) Chrome/61.0.3163.91
-        // Safari/537.36");
-        // PageFetcher pageFetcher = new PageFetcher(crawlConfig); // 实例化页面获取器
-        // RobotstxtConfig robotstxtConfig = new RobotstxtConfig();
-        // //
-        // 实例化爬虫机器人对目标服务器的配置，每个网站都有一个robots.txt文件,规定了该网站哪些页面可以爬，哪些页面禁止爬，该类是对robots.txt规范的实现
-        // RobotstxtServer robotstxtServer = new
-        // RobotstxtServer(robotstxtConfig, pageFetcher);
-        // // 实例化爬虫控制器
-        // CrawlController controller = new CrawlController(crawlConfig,
-        // pageFetcher, robotstxtServer);
-        // // 配置爬虫种子页面，就是规定的从哪里开始爬，可以配置多个种子页面
-        // for (String string : seeds) {
-        // controller.addSeed(string);
-        // }
-        // /**
-        // * 启动爬虫，爬虫从此刻开始执行爬虫任务，根据以上配置
-        // */
-        // controller.start(CrawlServiceImpl.class, CRAWL_THREAD_NUMBER);
-//		/**
-//		 * crawl4j.selfMade
-//		 */
-//		 log.info("参数配置完成");
-//		 HtmlParser.testUrl();
-//		/**
-//		 * crawl4j.login
-//		 */
-//		CrawlConfig crawlConfig = new CrawlConfig(); // 定义爬虫配置
-//		crawlConfig.setCrawlStorageFolder("/htcrawl/crawlcore/crawl/test_datatest");
-//		// 设置爬虫文件存储位置
-//		crawlConfig.setUserAgentString(
-//				"Mozilla/5.0 (Windows NT 6.3; Win64; x64)AppleWebKit/537.36(KHTML,like Gecko) Chrome/61.0.3163.91Safari/537.36");
-//		AuthInfo authJavaForum = new FormAuthInfo("8dc83b474c", "pw4d9e", "https://www.marklines.com/en/members/login", "profiles_login_login_id", "profiles_login_password");
-//		crawlConfig.addAuthInfo(authJavaForum);
-//		PageFetcher pageFetcher = new PageFetcher(crawlConfig); // 实例化页面获取器
-//		RobotstxtConfig robotstxtConfig = new RobotstxtConfig();
-//		// 实例化爬虫机器人对目标服务器的配置，每个网站都有一个robots.txt文件,规定了该网站哪些页面可以爬，哪些页面禁止爬，该类是对robots.txt规范的实现
-//		RobotstxtServer robotstxtServer = new RobotstxtServer(robotstxtConfig, pageFetcher);
-//		// 实例化爬虫控制器
-//		CrawlController controller = new CrawlController(crawlConfig, pageFetcher, robotstxtServer);
-//		// 配置爬虫种子页面，就是规定的从哪里开始爬，可以配置多个种子页面
-//		controller.addSeed("https://www.marklines.com/en/market_report/2601/");
-//		/**
-//		 * 启动爬虫，爬虫从此刻开始执行爬虫任务，根据以上配置
-//		 */
-//		controller.start(CrawlServiceImpl.class, CRAWL_THREAD_NUMBER);
-        /**
-         * crawl4j.dbProcess
-         */
+    public static void main(String[] args) {
+        if (args.length == 0) {
+            log.error("未正确设置参数！（如果是爬虫+数据整理需要输入批次ID；如果只是数据整理需要输入\"mysql\"和批次ID）。");
+            return;
+        }
+        if (args.length == 1) {
+            log.info("------------------------------project start with param args[0]={}------------------------------", args[0]);
+            log.info("------------------------------首先爬取，之后再进行数据处理和存储------------------------------");
+            configurableApplicationContext = SpringApplication.run(CoreApplication.class, args);
+            //用shell脚本控制爬取param_info中哪个批次的任务
+            //设置爬取批次id（param_info.batch_id）,该参数很多地方都会被用到
+            System.setProperty(CommonConfig.CRAWL_BATCH_ID_KEY, args[0]);
+            ParamInfoDao paramInfoDao = configurableApplicationContext.getBean(ParamInfoDao.class);
+            paramInfoDao.init(args[0]);
+            String crawlTaskServiceImplBeanName = paramInfoDao.getCrawlStrategy();
+            ((CrawlTaskService) configurableApplicationContext.getBean(crawlTaskServiceImplBeanName)).crawl();
+            log.info("------------------------------crawl job finished, start table info filter job------------------------------");
+            initalTable(paramInfoDao);
+            configurableApplicationContext.getBean(TableProcessService.class).tableInfoFilterProcess(args[0]);
+        }
+        if (args.length == 2 && args[0].equals("mysql")) {
+            //此处需要批次id，将param_info中的重要参数置入
+            configurableApplicationContext = SpringApplication.run(CoreApplication.class, args);
+            log.info("------------------------------单独处理数据库内容 args[0]={},args[1]={}------------------------------", args[0], args[1]);
+            ParamInfoDao paramInfoDao = configurableApplicationContext.getBean(ParamInfoDao.class);
+            TableProcessService tableProcessService = configurableApplicationContext.getBean(TableProcessService.class);
+            //设置爬取批次id（param_info.batch_id）,该参数很多地方都会被用到
+            String[] batchIdArray = args[1].split(",");
+            for (int i = 0; i < batchIdArray.length; i++) {
+                paramInfoDao.init(batchIdArray[i]);
+                initalTable(paramInfoDao);
+                tableProcessService.tableInfoFilterProcess(batchIdArray[i]);
+            }
+        }
+        if (args.length == 2 && args[0].equals("converge")) {
+            configurableApplicationContext = SpringApplication.run(CoreApplication.class, args);
+            //生成今日汇聚表（规则：auto_industry_news_yyyyMMdd）
+            String convergeTableName = "auto_industry_news_" + new DateTime().toString("yyyyMMdd");
+            CrawlInfoDao crawlInfoDao = configurableApplicationContext.getBean(CrawlInfoDao.class);
+            String createTableSQL = crawlInfoDao.getTableSQLbyTableName(convergeTableName);
+            try {
+                crawlInfoDao.createTable(convergeTableName, createTableSQL);
+            } catch (SQLException e) {
+                log.error("创建表时出现错误：{}", e.getMessage());
+                return;
+            }
+            //找到对应批次的id（传递参数时用","进行分割）所指向的filter表
+            ParamInfoDao paramInfoDao = configurableApplicationContext.getBean(ParamInfoDao.class);
+            List<String> filterTableNameList = new ArrayList<>();
+            String[] batchIdArray = args[1].split(",");
+            for (int i = 0; i < batchIdArray.length; i++) {
+                paramInfoDao.init(batchIdArray[i]);
+                filterTableNameList.add(paramInfoDao.getFilteredInfoTableName());
+            }
+            //将各个filter表中的内容汇聚到今日表中--注意排除‘标题--时间’一样的内容
+            TableProcessServiceImpl tableProcessService = configurableApplicationContext.getBean(TableProcessServiceImpl.class);
+            for (int i = 0; i < filterTableNameList.size(); i++) {
+                String tableName = filterTableNameList.get(i);
+                tableProcessService.filteredTableInfoTransferedIntoConverge(tableName, convergeTableName);
+            }
+        }
     }
+
+    /**
+     * 此处的参数需要被初始化过
+     *
+     * @param paramInfoDao
+     */
+    private static void initalTable(ParamInfoDao paramInfoDao) {
+        //如果没有对应的表，应该先将表建好
+        CrawlInfoDao crawlInfoDao = configurableApplicationContext.getBean(CrawlInfoDao.class);
+        String tableName = paramInfoDao.getDetailInfoTableName();
+        String filterTableName = paramInfoDao.getFilteredInfoTableName();
+        String createTableSQL = crawlInfoDao.getTableSQLbyTableName(tableName);
+        String filterTableSQL = crawlInfoDao.getTableSQLbyTableName(filterTableName);
+        try {
+            //如果表不存在，则会创建
+            crawlInfoDao.createTable(tableName, createTableSQL);
+            crawlInfoDao.createTable(filterTableName, filterTableSQL);
+        } catch (SQLException e) {
+            log.error("创建表时出现错误：{}", e.getMessage());
+            return;
+        }
+        //加入表名，后续进行内容过滤转移时需要用到
+        tableNameMap.put("detail", tableName);
+        tableNameMap.put("filter", filterTableName);
+    }
+
 }
